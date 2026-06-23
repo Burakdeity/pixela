@@ -36,9 +36,15 @@ const LOGO_PROXY = {
 
 if (!fs.existsSync(CACHE)) fs.mkdirSync(CACHE, { recursive: true });
 
+function getCloudBaseUrl() {
+  const url = process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_URL || '';
+  return url ? url.replace(/\/$/, '') : null;
+}
+
 function setPort(p) {
   PORT = p;
-  SITE_URL = `http://127.0.0.1:${p}/`;
+  const cloud = getCloudBaseUrl();
+  SITE_URL = cloud ? `${cloud}/` : `http://127.0.0.1:${p}/`;
   try {
     fs.writeFileSync(path.join(ROOT, 'port.txt'), String(p));
   } catch (_) {}
@@ -147,6 +153,8 @@ function buildEarlyHook() {
 }
 
 function getPublicUrl() {
+  const cloud = getCloudBaseUrl();
+  if (cloud) return cloud;
   try {
     const p = path.join(ROOT, 'public-url.txt');
     if (fs.existsSync(p)) {
@@ -696,6 +704,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 function openBrowser() {
+  if (getCloudBaseUrl() || process.platform !== 'win32') return;
   exec(`cmd /c start "" "${SITE_URL}"`);
 }
 
@@ -722,6 +731,13 @@ function onListen() {
 }
 
 function tryListen(index) {
+  const envPort = parseInt(process.env.PORT, 10);
+  if (envPort > 0) {
+    setPort(envPort);
+    server.listen({ port: envPort, host: '0.0.0.0' }, () => onListen());
+    return;
+  }
+
   if (index >= PORTS.length) {
     console.error('HATA: Hicbir port acilamadi:', PORTS.join(', '));
     process.exit(1);
@@ -749,6 +765,7 @@ function tryListen(index) {
 }
 
 function killOtherServers() {
+  if (process.platform !== 'win32') return;
   const { execSync } = require('child_process');
   for (const port of PORTS) {
     try {
