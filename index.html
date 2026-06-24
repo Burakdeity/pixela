@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>PIXELA — Yönlendiriliyor</title>
+  <style>
+    body { font-family: Segoe UI, sans-serif; background: #0a0a0a; color: #fcf9f3;
+      display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 24px; }
+    h1 { font-weight: 400; }
+    p { color: #aaa; line-height: 1.7; max-width: 420px; }
+    a { color: #66C5F1; }
+    .warn { color: #f6a; margin-top: 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>PIXELA</h1>
+    <p id="msg">Türkçe site için sunucu aranıyor…</p>
+    <p class="warn" id="warn" hidden>
+      <b>5500 portu (Live Server) Türkçe değildir.</b><br>
+      Lütfen <code>BASLAT.cmd</code> ile açın veya
+      <a href="http://127.0.0.1:8888/">http://127.0.0.1:8888/</a> adresine gidin.
+    </p>
+  </div>
+  <script>
+    if (location.port === '5500' || location.port === '5501') {
+      document.getElementById('warn').hidden = false;
+    }
+    var ports = [8888, 9000, 7777];
+    var i = 0;
+    function tryNext() {
+      if (i >= ports.length) {
+        document.getElementById('msg').innerHTML =
+          'PIXELA sunucusu çalışmıyor.<br><br><b>BASLAT.cmd</b> dosyasına çift tıklayın,<br>sonra <a href="http://127.0.0.1:8888/">8888</a> portunu açın.';
+        return;
+      }
+      var p = ports[i++];
+      fetch('http://127.0.0.1:' + p + '/ping', { cache: 'no-store' })
+        .then(function (r) { return r.text(); })
+        .then(function (t) {
+          if (t.indexOf('ok') === 0) location.replace('http://127.0.0.1:' + p + '/');
+          else tryNext();
+        })
+        .catch(tryNext);
+    }
+    tryNext();
+  </script>
+</body>
+</html>
