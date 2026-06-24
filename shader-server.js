@@ -482,10 +482,15 @@ async function fetchAndServePatchedChunk(pathname, query, res) {
 }
 
 function loadCache() {
-  try {
-    const p = path.join(CACHE, 'page.html');
-    if (fs.existsSync(p)) return fs.readFileSync(p, 'utf8');
-  } catch (_) {}
+  const candidates = [
+    path.join(CACHE, 'page.html'),
+    path.join(STATIC, 'page.html'),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return fs.readFileSync(p, 'utf8');
+    } catch (_) {}
+  }
   return null;
 }
 

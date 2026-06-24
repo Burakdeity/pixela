@@ -267,6 +267,7 @@ async function main() {
   if (!fs.existsSync(STATIC)) fs.mkdirSync(STATIC, { recursive: true });
 
   const homeHtml = await mirrorPage('/', path.join(CACHE, 'page.html'));
+  fs.writeFileSync(path.join(STATIC, 'page.html'), homeHtml);
   const { js, css, media } = extractUrls(homeHtml);
   const allMedia = new Set(media);
 
