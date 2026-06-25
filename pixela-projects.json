@@ -1,0 +1,26 @@
+[
+  {
+    "uid": "dila-lazer",
+    "routeUid": "ehealth-arena",
+    "title": "Dila Lazer",
+    "subtitle": "E-Ticaret Sitesi",
+    "url": "https://www.dilalazer.com/",
+    "description": "Neon LED, lazer kesim ve özel tasarım ürünleri için e-ticaret sitesi. 81 ile teslimat, kendin tasarla modülü ve online sipariş altyapısı."
+  },
+  {
+    "uid": "lider-teknik",
+    "routeUid": "select-concept",
+    "title": "Lider Teknik",
+    "subtitle": "Kurumsal Site",
+    "url": "https://www.sakaryaliderklima.com/",
+    "description": "Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif."
+  },
+  {
+    "uid": "rk-rent-a-car",
+    "routeUid": "gamily",
+    "title": "RK Rent A Car",
+    "subtitle": "Kurumsal Site",
+    "url": "https://sakaryarkrentacar.com/",
+    "description": "Sakarya araç kiralama firması için kurumsal site. Online rezervasyon, filo tanıtımı, kampanyalar ve 7/24 iletişim formu."
+  }
+]

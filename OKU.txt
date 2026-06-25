@@ -1,0 +1,87 @@
+PIXELA - YEREL SITE
+
+=============================
+
+SITEYI DUZENLEMEK ICIN:
+
+  site-config.json  ->  marka, iletisim, sosyal medya, projeler, metinler
+
+  pixela-logo-*.svg ->  logolar
+  pixela-boot-screen*.png -> acilis ekrani
+  videos/           -> proje videolari
+  script.js         -> 3D logo ve arayuz yamalari
+
+Siteyi baslat: BASLAT.cmd veya npm start
+Adres: http://127.0.0.1:8888/
+
+=============================
+
+PIXELA - PORT: 8888
+
+=============================
+
+
+
+1) Masaustundeki "PIXELA Site" kisayoluna cift tikla
+
+
+
+2) Tarayici acilmazsa su adresleri dene:
+
+   http://127.0.0.1:8888/
+
+   http://127.0.0.1:9000/
+
+   http://127.0.0.1:7777/
+
+
+
+(Eski 8080 portu artik kullanilmiyor)
+
+
+
+ONEMLI — 5500 PORTU (Live Server) KULLANMAYIN!
+
+   Live Server / VS Code onizleme = Ingilizce ham site
+
+   Turkce site icin: BASLAT.cmd  ->  http://127.0.0.1:8888/
+
+
+
+SANAL SUNUCU (VPS) — TURKCE ICIN
+
+=============================
+
+
+
+1) Tum dosyalari yukle (fonts/ klasoru dahil!)
+
+2) node server.js  veya BASLAT.cmd  calissin (pm2 ile surekli acik tut)
+
+3) public-url.txt olustur, icine domain yaz:
+
+   https://siteniz.com
+
+
+
+4) Nginx KULLANIYORSAN:
+
+   - TUM trafik Node'a gitmeli (ornek: nginx-pixela.conf)
+
+   - /_next/ dosyalarini nginx cache'leme — Ingilizce kalir!
+
+
+
+5) Kontrol:
+
+   curl -I https://siteniz.com/ping          -> X-Pixela-Ver: 106
+
+   curl -I https://siteniz.com/_next/static/chunks/0nr6lqdt2xw72.js
+
+      -> X-Pixela-Chunk: cached veya static-patched
+
+
+
+6) Sunucuda: node generate-msdf-fonts.js (fontlar yoksa)
+
+7) Tarayici: Ctrl+Shift+R

@@ -1,0 +1,67 @@
+{
+  "brand": {
+    "name": "PIXELA",
+    "tagline": "Yazılım & Web",
+    "description": "Kurumsal web sitesi, yönetim paneli ve özel yazılım projeleri. İşletmenizi dijitalde profesyonel konumlandırıyoruz."
+  },
+  "contact": {
+    "whatsapp": "905319282677",
+    "whatsappMessage": "Merhaba, PIXELA web sitesinden yazıyorum.",
+    "email": "info@pixela.com.tr",
+    "businessEmail": "info@pixela.com.tr",
+    "address": "Sakarya, Türkiye",
+    "city": "Sakarya"
+  },
+  "social": {
+    "instagram": "",
+    "linkedin": "",
+    "x": "",
+    "facebook": "",
+    "youtube": ""
+  },
+  "seo": {
+    "title": "PIXELA — Yazılım & Web",
+    "description": "Kurumsal web sitesi, e-ticaret, yönetim paneli ve özel yazılım. Sakarya ve Türkiye genelinde dijital çözümler.",
+    "keywords": "web tasarım, yazılım, kurumsal site, e-ticaret, Sakarya"
+  },
+  "copy": {
+    "heroTitle": "Profesyonel Yazılım ve Web Çözümleri",
+    "heroSubtitle": "Referans projelerimizi incelemek için kaydırın",
+    "aboutTitle": "İşletmeniz İçin Dijital Altyapı",
+    "aboutBody": "PIXELA olarak kurumsal web siteleri, yönetim panelleri ve özel yazılım projeleri geliştiriyoruz. Her çözüm; performans, güvenilirlik ve markanızı dijitalde güçlü konumlandırma hedefiyle tasarlanır.",
+    "clientsTitle": "Birlikte Çalıştığımız İşletmeler",
+    "clientsBody": "Farklı sektörlerden işletmelerle birlikte çalıştık. Ortak hedefimiz her zaman aynıydı: dijitalde güçlü bir iz bırakmak.",
+    "contactTitle": "İletişim",
+    "contactBody": "Yazılım veya web projeniz için bizimle iletişime geçin. İhtiyacınızı dinleyelim, size özel bir çözüm planı oluşturalım.",
+    "ctaButton": "İletişime Geçin",
+    "ctaHeadline": "Proje Teklifi Alın"
+  },
+  "projects": [
+    {
+      "uid": "dila-lazer",
+      "routeUid": "ehealth-arena",
+      "title": "Dila Lazer",
+      "subtitle": "E-Ticaret Sitesi",
+      "url": "https://www.dilalazer.com/",
+      "description": "Neon LED, lazer kesim ve özel tasarım ürünleri için e-ticaret sitesi. 81 ile teslimat, kendin tasarla modülü ve online sipariş altyapısı."
+    },
+    {
+      "uid": "lider-teknik",
+      "routeUid": "heip",
+      "title": "Lider Teknik",
+      "subtitle": "Kurumsal Site",
+      "url": "https://www.sakaryaliderklima.com/",
+      "description": "Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif.",
+      "video": "/videos/heip-lider-teknik.mp4",
+      "poster": "/videos/heip-poster.jpg"
+    },
+    {
+      "uid": "rk-rent-a-car",
+      "routeUid": "gamily",
+      "title": "RK Rent A Car",
+      "subtitle": "Kurumsal Site",
+      "url": "https://sakaryarkrentacar.com/",
+      "description": "Sakarya araç kiralama firması için kurumsal site. Online rezervasyon, filo tanıtımı, kampanyalar ve 7/24 iletişim formu."
+    }
+  ]
+}

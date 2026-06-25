@@ -1,0 +1,20 @@
+# Bagimliliklar
+node_modules/
+
+# Yerel onbellek (shader.se'den indirilen, sunucuda yeniden olusur)
+cache/
+
+# Gecici test dosyalari
+_diag*.js
+_rsc-*.js
+_tr-*.js
+_work-heip.html
+_rsc-heip.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Yerel port (opsiyonel)
+port.txt

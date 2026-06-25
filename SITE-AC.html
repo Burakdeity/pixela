@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+
+<head>
+
+<meta charset="utf-8">
+
+<title>PIXELA Site Ac</title>
+
+<style>
+
+  body { font-family: Segoe UI, sans-serif; background: #0a0a0a; color: #fcf9f3;
+
+    display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; }
+
+  h1 { font-weight: 400; }
+
+  p { color: #aaa; line-height: 1.6; }
+
+</style>
+
+</head>
+
+<body>
+
+<div>
+
+  <h1>PIXELA</h1>
+
+  <p id="msg">Sunucu araniyor...</p>
+
+</div>
+
+<script>
+
+  var ports = [8888, 9000, 7777, 8080];
+
+  var i = 0;
+
+  function tryNext() {
+
+    if (i >= ports.length) {
+
+      document.getElementById('msg').innerHTML =
+
+        'Sunucu calismiyor.<br><br>Masaustundeki <b>PIXELA Site</b> kisayoluna tikla.';
+
+      return;
+
+    }
+
+    var p = ports[i++];
+
+    fetch('http://127.0.0.1:' + p + '/ping', { cache: 'no-store' })
+
+      .then(function (r) {
+
+        if (r.ok) location.replace('http://127.0.0.1:' + p + '/');
+
+        else tryNext();
+
+      })
+
+      .catch(tryNext);
+
+  }
+
+  tryNext();
+
+</script>
+
+</body>
+
+</html>
+
