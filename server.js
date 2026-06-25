@@ -6,12 +6,17 @@ const { exec } = require('child_process');
 const {
   applyTranslations,
   applyTranslationsBuffer,
-  applyRscTranslationsBuffer,
   getChunkPatchJs,
   getBrowserTrJs,
 } = require('./translations-tr');
 const { applyProjectOverrides } = require('./patch-projects');
-const { patchVideoLoader, patchHeipHtml, patchHeipRsc, isHeipMuxImage } = require('./patch-videos');
+const {
+  patchVideoLoader,
+  patchHeipHtml,
+  patchHeipFlight,
+  fixRscFlightLengths,
+  isHeipMuxImage,
+} = require('./patch-videos');
 const { getBrand, getSeoTitle, getPublicConfig } = require('./site-config');
 const { scrubBrandReferences } = require('./brand-scrub');
 
@@ -97,23 +102,69 @@ function serveStaticFile(pathname, res, extraHeaders = {}) {
   return true;
 }
 
-function serveLocalRsc(res) {
+function rscResponseHeaders(source) {
+  return {
+    'Content-Type': 'text/x-component',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    Pragma: 'no-cache',
+    Vary: 'rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch',
+    'X-Pixela-Source': source,
+    'X-Pixela-Ver': SCRIPT_VER,
+  };
+}
+
+function prepareHomeRscBody(raw) {
+  let body = typeof raw === 'string' ? raw : raw.toString('utf8');
+  body = patchHeipFlight(body);
+  body = scrubBrandReferences(body, getPublicUrl());
+  return fixRscFlightLengths(body);
+}
+
+function prepareWorkRscBody(raw, slug) {
+  let body = typeof raw === 'string' ? raw : raw.toString('utf8');
+  if (slug === 'heip') body = patchHeipFlight(body);
+  body = scrubBrandReferences(body, getPublicUrl());
+  return fixRscFlightLengths(body);
+}
+
+function writeRawWorkRsc(slug, raw) {
+  const destDir = path.join(STATIC, 'rsc', 'work');
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+  fs.writeFileSync(path.join(destDir, `${slug}.txt`), raw);
+}
+
+async function fetchRemoteRsc(urlPath) {
+  const remote = await fetchRemoteAsset(
+    `${REMOTE_ORIGIN}${urlPath}`,
+    'text/x-component,*/*',
+    { RSC: '1', Accept: 'text/x-component' }
+  );
+  if (remote.status !== 200 || !remote.body?.length) return null;
+  const raw = remote.body.toString('utf8');
+  if (!raw.includes('react.fragment')) return null;
+  return raw;
+}
+
+async function serveHomeRsc(res) {
+  try {
+    const raw = await fetchRemoteRsc('/');
+    if (raw) {
+      res.writeHead(200, rscResponseHeaders('remote-home-rsc'));
+      res.end(prepareHomeRscBody(raw));
+      return true;
+    }
+  } catch (err) {
+    console.warn('  Home RSC remote:', err.message);
+  }
+
   const candidates = [
     path.join(STATIC, 'rsc', 'home.txt'),
     path.join(CACHE, 'rsc-home.txt'),
   ];
   for (const p of candidates) {
     if (!fs.existsSync(p)) continue;
-    let body = applyRscTranslationsBuffer(fs.readFileSync(p), 'html').toString('utf8');
-    body = scrubBrandReferences(body, getPublicUrl());
-    res.writeHead(200, {
-      'Content-Type': 'text/x-component',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      Pragma: 'no-cache',
-      'X-Pixela-Source': 'local-rsc',
-      'X-Pixela-Ver': SCRIPT_VER,
-    });
-    res.end(body);
+    res.writeHead(200, rscResponseHeaders('local-home-rsc'));
+    res.end(prepareHomeRscBody(fs.readFileSync(p, 'utf8')));
     return true;
   }
   return false;
@@ -143,7 +194,8 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '117';
+const SCRIPT_VER = '121';
+const REMOTE_ORIGIN = 'https://www.shader.se';
 
 /** false = orijinal proje karuseli. HEIP -> Lider Teknik cevirisi ayri yapilir. */
 const ENABLE_CUSTOM_PROJECTS = false;
@@ -246,10 +298,20 @@ function bustOneUrl(url) {
   return url.includes('?') ? `${url}&${CACHE_BUST}` : `${url}?${CACHE_BUST}`;
 }
 
-/** Sadece HTML attribute'larindaki chunk URL'lerine cache-bust ekle (RSC inline script'lere dokunma). */
+/** Sadece HTML attribute'larindaki chunk URL'lerine cache-bust ekle (script icindeki flight verisine dokunma). */
 function bustAssetUrls(html) {
   const attrRe = /(\s(?:src|href)=")(\/_next\/static\/chunks\/[^"]+\.(?:js|css)[^"]*)(")/gi;
-  return html.replace(attrRe, (_, open, url, close) => open + bustOneUrl(url) + close);
+  const blocks = html.split(/(<script\b[\s\S]*?<\/script>)/gi);
+  return blocks
+    .map((block) => {
+      if (/^<script\b/i.test(block)) return block;
+      return block.replace(attrRe, (_, open, url, close) => open + bustOneUrl(url) + close);
+    })
+    .join('');
+}
+
+function stripBrokenPreloads(html) {
+  return html.replace(/<link\b[^>]*\brel=["']preload["'][^>]*\bhref=["']\s*["'][^>]*\/?>/gi, '');
 }
 
 function injectHead(html) {
@@ -258,6 +320,7 @@ function injectHead(html) {
   out = applyTranslations(out);
   out = patchSeo(out);
   out = bustAssetUrls(out);
+  out = stripBrokenPreloads(out);
   out = out.replace(/lang="en"/, 'lang="tr"');
   out = out.replace(/<title>[^<]*<\/title>/, `<title>${getSeoTitle()}</title>`);
   out = out.replace(
@@ -296,27 +359,36 @@ function workSlug(pathname) {
   return m ? m[1] : null;
 }
 
-function serveWorkRsc(slug, res) {
+function sendWorkRsc(res, body, source) {
+  res.writeHead(200, rscResponseHeaders(source));
+  res.end(body);
+}
+
+function serveWorkRscFallback(slug, res) {
   const candidates = [
     path.join(STATIC, 'rsc', 'work', `${slug}.txt`),
     path.join(CACHE, `rsc-work-${slug}.txt`),
   ];
   for (const file of candidates) {
     if (!fs.existsSync(file)) continue;
-    let body = patchHeipRsc(fs.readFileSync(file, 'utf8'));
-    body = applyRscTranslationsBuffer(Buffer.from(body, 'utf8'), 'html').toString('utf8');
-    body = scrubBrandReferences(body, getPublicUrl());
-    res.writeHead(200, {
-      'Content-Type': 'text/x-component',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      Pragma: 'no-cache',
-      'X-Pixela-Source': 'local-work-rsc',
-      'X-Pixela-Ver': SCRIPT_VER,
-    });
-    res.end(body);
+    sendWorkRsc(res, prepareWorkRscBody(fs.readFileSync(file, 'utf8'), slug), 'local-work-rsc');
     return true;
   }
   return false;
+}
+
+async function serveWorkRscLive(slug, res) {
+  try {
+    const raw = await fetchRemoteRsc(`/work/${encodeURIComponent(slug)}`);
+    if (raw) {
+      writeRawWorkRsc(slug, raw);
+      sendWorkRsc(res, prepareWorkRscBody(raw, slug), 'remote-work-rsc');
+      return true;
+    }
+  } catch (err) {
+    console.warn('  Work RSC remote:', slug, err.message);
+  }
+  return serveWorkRscFallback(slug, res);
 }
 
 async function serveWork(pathname, query, req, res) {
@@ -324,7 +396,7 @@ async function serveWork(pathname, query, req, res) {
   if (!slug) return false;
 
   if (isRscRequest(req)) {
-    if (serveWorkRsc(slug, res)) return true;
+    if (await serveWorkRscLive(slug, res)) return true;
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Proje verisi yerelde yok.');
     return true;
@@ -391,22 +463,38 @@ function servePatchedChunk(pathname, res) {
   return false;
 }
 
-async function fetchAndServePatchedChunk(pathname, res) {
-  if (servePatchedChunk(pathname, res)) return true;
-  const local = staticFilePath(pathname);
-  if (!fs.existsSync(local)) return false;
-  const patched = patchBrandJs(fs.readFileSync(local));
+function writePatchedChunk(pathname, patched, res, source) {
   if (!fs.existsSync(CHUNK_CACHE)) fs.mkdirSync(CHUNK_CACHE, { recursive: true });
   fs.writeFileSync(chunkCacheFile(pathname), patched);
   res.writeHead(200, {
     'Content-Type': 'application/javascript; charset=utf-8',
     'Cache-Control': 'no-store, no-cache, must-revalidate',
     Pragma: 'no-cache',
-    'X-Pixela-Chunk': 'static-patched',
+    'X-Pixela-Chunk': source,
     'X-Pixela-Ver': SCRIPT_VER,
   });
   res.end(patched);
-  return true;
+}
+
+async function fetchAndServePatchedChunk(pathname, res) {
+  if (servePatchedChunk(pathname, res)) return true;
+  const local = staticFilePath(pathname);
+  if (fs.existsSync(local)) {
+    writePatchedChunk(pathname, patchBrandJs(fs.readFileSync(local)), res, 'static-patched');
+    return true;
+  }
+  try {
+    const remote = await fetchRemoteAsset(
+      REMOTE_ORIGIN + pathname.split('?')[0],
+      '*/*'
+    );
+    if (remote.status !== 200 || !remote.body?.length) return false;
+    writePatchedChunk(pathname, patchBrandJs(remote.body), res, 'remote-patched');
+    return true;
+  } catch (err) {
+    console.warn('  Chunk uzaktan alinamadi:', pathname, err.message);
+    return false;
+  }
 }
 
 function loadCache() {
@@ -464,6 +552,39 @@ function muxCacheFile(pathname) {
 
 function muxCdnUrl(playbackId, time) {
   return `https://image.mux.com/${playbackId}/thumbnail.jpg?width=1280&time=${time}`;
+}
+
+function fetchRemoteAsset(url, accept = '*/*', extraHeaders = {}) {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith('https:') ? https : http;
+    client
+      .get(
+        url,
+        {
+          headers: { 'User-Agent': 'Mozilla/5.0', Accept: accept, ...extraHeaders },
+          timeout: 30000,
+        },
+        (pres) => {
+        if ([301, 302, 307, 308].includes(pres.statusCode) && pres.headers.location) {
+          pres.resume();
+          return resolve(fetchRemoteAsset(pres.headers.location, accept, extraHeaders));
+        }
+        const chunks = [];
+        pres.on('data', (c) => chunks.push(c));
+        pres.on('end', () =>
+          resolve({
+            status: pres.statusCode || 502,
+            headers: pres.headers,
+            body: Buffer.concat(chunks),
+          })
+        );
+      })
+      .on('error', reject)
+      .on('timeout', function () {
+        this.destroy();
+        reject(new Error('Uzak varlik zaman asimi'));
+      });
+  });
 }
 
 function fetchMuxCdn(url) {
@@ -658,16 +779,19 @@ const server = http.createServer(async (req, res) => {
   if (logoFile) return sendLocal(logoFile, res);
 
   if (pathname.startsWith('/videos/')) {
-    const name = path.basename(pathname.split('?')[0]);
-    const local = path.join(ROOT, 'videos', name);
-    if (fs.existsSync(local)) {
-      const ext = path.extname(name).toLowerCase();
-      const types = {
-        '.mp4': 'video/mp4',
-        '.webm': 'video/webm',
-        '.m3u8': 'application/vnd.apple.mpegurl',
-        '.ts': 'video/mp2t',
-      };
+    const rel = pathname.replace(/^\//, '').split('?')[0];
+    const local = path.join(ROOT, rel);
+    const ext = path.extname(rel).toLowerCase();
+    const types = {
+      '.mp4': 'video/mp4',
+      '.webm': 'video/webm',
+      '.m3u8': 'application/vnd.apple.mpegurl',
+      '.ts': 'video/mp2t',
+      '.avif': 'image/avif',
+      '.json': 'application/json; charset=utf-8',
+    };
+
+    if (fs.existsSync(local) && fs.statSync(local).isFile()) {
       res.writeHead(200, {
         'Content-Type': types[ext] || 'application/octet-stream',
         'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -675,6 +799,27 @@ const server = http.createServer(async (req, res) => {
         Pragma: 'no-cache',
       });
       return fs.createReadStream(local).pipe(res);
+    }
+
+    if (rel.startsWith('videos/prebaked/')) {
+      try {
+        const remote = await fetchRemoteAsset(`https://www.shader.se/${rel}`, '*/*');
+        if (remote.status === 200 && remote.body?.length) {
+          try {
+            fs.mkdirSync(path.dirname(local), { recursive: true });
+            fs.writeFileSync(local, remote.body);
+          } catch (_) {}
+          res.writeHead(200, {
+            'Content-Type': remote.headers['content-type'] || types[ext] || 'application/octet-stream',
+            'Cache-Control': 'public, max-age=86400',
+            'X-Pixela-Source': 'shader-proxy',
+            'X-Pixela-Ver': SCRIPT_VER,
+          });
+          return res.end(remote.body);
+        }
+      } catch (err) {
+        console.warn('  Handshake video:', rel, err.message);
+      }
     }
   }
 
@@ -704,7 +849,7 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/' || pathname === '/index.html') {
     if (isRscRequest(req)) {
-      if (serveLocalRsc(res)) return;
+      if (await serveHomeRsc(res)) return;
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('RSC verisi yerelde yok.');
     }

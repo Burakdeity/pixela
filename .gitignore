@@ -1,6 +1,9 @@
 # Bagimliliklar
 node_modules/
 
+# Portable Node (yerel, repoya eklenmez)
+.tools/
+
 # Yerel onbellek (shader.se'den indirilen, sunucuda yeniden olusur)
 cache/
 
@@ -10,6 +13,8 @@ _rsc-*.js
 _tr-*.js
 _work-heip.html
 _rsc-heip.txt
+_verify.js
+_icon-*.png
 
 # OS / editor
 .DS_Store

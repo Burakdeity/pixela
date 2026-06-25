@@ -34,16 +34,21 @@ async function detectIconBox(srcPath, maxRight, maxHeight) {
   const { data, info } = await sharp(srcPath).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width, height, channels } = info;
   const scanH = Math.min(maxHeight, Math.round(height * 0.28));
+  const y0 = Math.max(0, Math.round(height * 0.08));
+  const y1 = Math.min(height, y0 + scanH);
   let minX = width;
-  let minY = scanH;
+  let minY = y1;
   let maxX = 0;
   let maxY = 0;
   const limit = Math.min(maxRight, width);
-  for (let y = 0; y < scanH; y++) {
+  for (let y = y0; y < y1; y++) {
     for (let x = 0; x < limit; x++) {
       const i = (y * width + x) * channels;
-      const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-      if (lum > 128 && data[i + 3] > 128) {
+      const a = data[i + 3];
+      const on =
+        a > 24 &&
+        (data[i] > 24 || data[i + 1] > 24 || data[i + 2] > 24);
+      if (on) {
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x);
