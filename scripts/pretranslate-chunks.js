@@ -4,7 +4,7 @@ const path = require('path');
 const { applyTranslations } = require('../translations-tr');
 
 const ROOT = path.join(__dirname, '..');
-const SCRIPT_VER = '163';
+const SCRIPT_VER = '164';
 const SRC = path.join(ROOT, 'static', '_next', 'static', 'chunks');
 const DEST = path.join(ROOT, 'cache', `chunks-tr-v${SCRIPT_VER}`);
 
@@ -59,23 +59,61 @@ if (fs.existsSync(nav)) {
     }
   }
 
-  // Proje gecisinde boot yukleme cubugunu atla (blend shader'a dokunma)
-  // Ana sayfa (/) normal boot; /work veya __pixelaSkipBoot => 100
+  // Proje gecisinde boot atla
   const bootFrom =
+    'l.current.loadingProgress.value=(typeof window!=="undefined"&&(window.__pixelaSkipBoot||/^\\/work\\//.test(location.pathname)))?100:f.current';
+  const bootFromMid =
     'l.current.loadingProgress.value=(typeof window!=="undefined"&&window.__pixelaSkipBoot)?100:f.current';
   const bootFromOrig = 'l.current.loadingProgress.value=f.current';
   const bootTo =
     'l.current.loadingProgress.value=(typeof window!=="undefined"&&(window.__pixelaSkipBoot||/^\\/work\\//.test(location.pathname)))?100:f.current';
-  if (t.includes(bootFrom)) {
-    t = t.split(bootFrom).join(bootTo);
+  if (t.includes(bootTo) && !t.includes(bootFromOrig) && t.includes('__pixelaSkipBoot||')) {
+    console.log('boot skip progress: already');
+  } else if (t.includes(bootFrom)) {
+    console.log('boot skip progress: already v163');
+  } else if (t.includes(bootFromMid)) {
+    t = t.split(bootFromMid).join(bootTo);
     console.log('boot skip progress: upgraded');
   } else if (t.includes(bootFromOrig)) {
     t = t.split(bootFromOrig).join(bootTo);
     console.log('boot skip progress: applied');
-  } else if (t.includes(bootTo)) {
-    console.log('boot skip progress: already');
   } else {
     console.log('boot skip progress: MISS');
+  }
+
+  // Soft-nav boot'u tekrar aciyor — proje tiklamasini hard nav yap
+  const navPatches = [
+    [
+      'window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
+      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("navigate_to_project",{project:e}),location.assign(`/work/${e}`)',
+    ],
+    [
+      'window.umami.track("next_project_click",{project:e}),y.push(`/work/${e}`)',
+      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("next_project_click",{project:e}),location.assign(`/work/${e}`)',
+    ],
+  ];
+  for (const [a, b] of navPatches) {
+    if (t.includes(a)) {
+      t = t.split(a).join(b);
+      console.log('hard work nav:', a.slice(0, 40), '-> ok');
+    } else if (t.includes(b)) {
+      console.log('hard work nav already');
+    } else {
+      console.log('hard work nav MISS:', a.slice(0, 50));
+    }
+  }
+
+  // Skip iken boot texture blend etme — sahneyi goster
+  const blendFrom = 'return TW(xd(e,1),r,r.a)';
+  const blendTo =
+    'return (typeof window!=="undefined"&&(window.__pixelaSkipBoot||/^\\/work\\//.test(location.pathname)))?r:TW(xd(e,1),r,r.a)';
+  if (t.includes(blendFrom)) {
+    t = t.split(blendFrom).join(blendTo);
+    console.log('boot blend skip: applied');
+  } else if (t.includes(blendTo)) {
+    console.log('boot blend skip: already');
+  } else {
+    console.log('boot blend skip: MISS');
   }
 
   fs.writeFileSync(nav, t);
