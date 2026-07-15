@@ -4,7 +4,7 @@ const path = require('path');
 const { applyTranslations } = require('../translations-tr');
 
 const ROOT = path.join(__dirname, '..');
-const SCRIPT_VER = '164';
+const SCRIPT_VER = '165';
 const SRC = path.join(ROOT, 'static', '_next', 'static', 'chunks');
 const DEST = path.join(ROOT, 'cache', `chunks-tr-v${SCRIPT_VER}`);
 
@@ -81,25 +81,25 @@ if (fs.existsSync(nav)) {
     console.log('boot skip progress: MISS');
   }
 
-  // Soft-nav boot'u tekrar aciyor — proje tiklamasini hard nav yap
+  // Projeyi sayfa yenilemeden ac; boot bayragini router.push'tan once set et
   const navPatches = [
     [
       'window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
-      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("navigate_to_project",{project:e}),location.assign(`/work/${e}`)',
+      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
     ],
     [
       'window.umami.track("next_project_click",{project:e}),y.push(`/work/${e}`)',
-      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("next_project_click",{project:e}),location.assign(`/work/${e}`)',
+      'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("next_project_click",{project:e}),y.push(`/work/${e}`)',
     ],
   ];
   for (const [a, b] of navPatches) {
     if (t.includes(a)) {
       t = t.split(a).join(b);
-      console.log('hard work nav:', a.slice(0, 40), '-> ok');
+      console.log('soft work nav:', a.slice(0, 40), '-> ok');
     } else if (t.includes(b)) {
-      console.log('hard work nav already');
+      console.log('soft work nav already');
     } else {
-      console.log('hard work nav MISS:', a.slice(0, 50));
+      console.log('soft work nav MISS:', a.slice(0, 50));
     }
   }
 

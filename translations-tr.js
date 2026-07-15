@@ -790,18 +790,17 @@ function getChunkPatchJs() {
       "function pxWork(u){try{var p=typeof u==='string'?u:(u&&u.pathname)||'';return /\\/work\\//.test(String(p))}catch(e){return false}}" +
       "function pxSkipOn(){try{window.__pixelaSkipBoot=1}catch(e){window.__pixelaSkipBoot=1}}" +
       "try{window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)}catch(e){window.__pixelaSkipBoot=false}" +
-      // router.push soft-nav boot'u tekrar aciyor — /work hard nav
+      // router.push soft-nav kalsin; sadece boot bayragini gecisten once set et
       "if(!window.__pixelaWorkNav){window.__pixelaWorkNav=1;" +
       "var _ps=history.pushState.bind(history),_rs=history.replaceState.bind(history);" +
-      "function pxGoWork(u){try{var x=new URL(String(u),location.origin);if(x.origin!==location.origin)return false;if(!/^\\/work\\/[^/]+\\/?$/.test(x.pathname))return false;if(x.pathname.replace(/\\/$/,'')===location.pathname.replace(/\\/$/,''))return false;pxSkipOn();location.assign(x.pathname+(x.search||''));return true}catch(e){return false}}" +
-      "history.pushState=function(s,t,u){if(u!=null&&pxGoWork(u))return;return _ps(s,t,u)};" +
-      "history.replaceState=function(s,t,u){if(u!=null&&pxGoWork(u))return;return _rs(s,t,u)};" +
-      "document.addEventListener('click',function(e){try{var a=e.target&&e.target.closest&&e.target.closest('a[href*=\"/work/\"]');if(!a)return;var href=a.getAttribute('href');if(href&&pxGoWork(href)){e.preventDefault();e.stopPropagation()}}catch(x){}},true);" +
+      "history.pushState=function(s,t,u){if(pxWork(u))pxSkipOn();return _ps(s,t,u)};" +
+      "history.replaceState=function(s,t,u){if(pxWork(u))pxSkipOn();return _rs(s,t,u)};" +
+      "document.addEventListener('click',function(e){try{var a=e.target&&e.target.closest&&e.target.closest('a[href*=\"/work/\"]');if(a)pxSkipOn()}catch(x){}},true);" +
       "}" +
       "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
       "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
-      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=164';" +
-      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=164';" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=165';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=165';" +
       "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +
