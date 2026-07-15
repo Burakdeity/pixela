@@ -4,7 +4,7 @@ const path = require('path');
 const { applyTranslations } = require('../translations-tr');
 
 const ROOT = path.join(__dirname, '..');
-const SCRIPT_VER = '165';
+const SCRIPT_VER = '166';
 const SRC = path.join(ROOT, 'static', '_next', 'static', 'chunks');
 const DEST = path.join(ROOT, 'cache', `chunks-tr-v${SCRIPT_VER}`);
 
@@ -84,7 +84,7 @@ if (fs.existsSync(nav)) {
   // Projeyi sayfa yenilemeden ac; boot bayragini router.push'tan once set et
   const navPatches = [
     [
-      'window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
+      'i.set(!0),n.set(!0),window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
       'window.__pixelaSkipBoot=1,window.umami&&window.umami.track("navigate_to_project",{project:e}),r.push(`/work/${e}`)',
     ],
     [

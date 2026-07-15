@@ -80,8 +80,8 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=165';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=165';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=166';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=166';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -245,9 +245,12 @@
       document.title = document.title.replace(/\bShader\b/gi, BRAND);
     }
 
-    // Soft-nav hizlandirmak icin proje RSC prefetch
+    // Gercek /work route'larini erkenden isit
     if (location.pathname === '/' || location.pathname === '') {
-      const slugs = (CFG.projects || []).map((p) => p.uid).filter(Boolean).slice(0, 12);
+      const slugs = (CFG.projects || [])
+        .map((p) => p.routeUid || p.uid)
+        .filter(Boolean)
+        .slice(0, 12);
       const fallback = [
         'ehealth-arena',
         'select-concept',
@@ -263,7 +266,7 @@
               headers: { RSC: '1', Accept: 'text/x-component' },
             }).catch(() => {});
           } catch (_) {}
-        }, 1500 + i * 200);
+        }, 250 + i * 100);
       });
     }
 

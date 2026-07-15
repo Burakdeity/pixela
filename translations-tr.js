@@ -799,8 +799,8 @@ function getChunkPatchJs() {
       "}" +
       "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
       "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
-      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=165';" +
-      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=165';" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=166';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=166';" +
       "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +
