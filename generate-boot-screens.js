@@ -21,8 +21,9 @@ function bootBg() {
   return { ...BOOT_BG };
 }
 
-const DESKTOP_ICON_POS = { left: 68, top: 40 };
+const DESKTOP_ICON_TOP = 40;
 const MOBILE_ICON_POS = { left: 36, top: 24 };
+const DESKTOP_TITLE_GAP = 10;
 const MOBILE_TITLE_GAP = 4;
 /** Kaynak PNG'deki SHADER basligi ikon kutusuna tasmamasi icin sag sinir */
 const MOBILE_ICON_MAX_X = 102;
@@ -106,6 +107,38 @@ function fitTitlePath(font, label, maxW, maxH) {
   return { d: p.toPathData(3), w: b.x2 - b.x1, h: b.y2 - b.y1, b, size: 20 };
 }
 
+async function softWhite(buf) {
+  // Antialias alpha koru; sadece RGB'yi beyaza cek
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    if (a < 8) {
+      data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
+      continue;
+    }
+    const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+    data[i] = data[i + 1] = data[i + 2] = 255;
+    data[i + 3] = Math.min(255, Math.round(a * Math.max(lum, 0.15)));
+  }
+  return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+}
+
+/** Boot shader koyu/seffaf pikselleri yutuyor — alt yazi tam opak beyaz olsun */
+async function solidWhite(buf) {
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+    if (a < 20 || lum < 0.12) {
+      data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
+      continue;
+    }
+    data[i] = data[i + 1] = data[i + 2] = 255;
+    data[i + 3] = 255;
+  }
+  return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+}
+
 async function renderTitleLayer(font, label, canvasW, canvasH, x, y, maxW, maxH, anchor = 'center') {
   const title = fitTitlePath(font, label, maxW, maxH);
   const tx = anchor === 'left' ? x - title.b.x1 : x - title.w / 2 - title.b.x1;
@@ -113,25 +146,29 @@ async function renderTitleLayer(font, label, canvasW, canvasH, x, y, maxW, maxH,
   const svg = `<svg width="${canvasW}" height="${canvasH}" xmlns="http://www.w3.org/2000/svg">
 <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)})"><path d="${title.d}" fill="#FFFFFF"/></g>
 </svg>`;
-  return whiteMask(await sharp(Buffer.from(svg)).png().toBuffer());
+  return solidWhite(await sharp(Buffer.from(svg)).png().toBuffer());
 }
 
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 }
 
-async function renderMonoLayer(text, canvasW, canvasH, x, y, size, anchor = 'middle') {
+async function renderTextLayer(font, text, canvasW, canvasH, x, y, size, anchor = 'middle') {
+  // Vektor path + 3x supersample — tam opak beyaz (boot shader'da kaybolmasin)
   const scale = 3;
-  const sw = canvasW * scale;
-  const sh = canvasH * scale;
+  const p = font.getPath(text, 0, 0, size * scale);
+  const b = p.getBoundingBox();
+  const w = b.x2 - b.x1;
+  const h = b.y2 - b.y1;
   const sx = x * scale;
   const sy = y * scale;
-  const fs = size * scale;
-  const svg = `<svg width="${sw}" height="${sh}" xmlns="http://www.w3.org/2000/svg">
-<text x="${sx}" y="${sy}" fill="#FFFFFF" font-family="'Courier New', Courier, monospace" font-size="${fs}" font-weight="700" text-anchor="${anchor}">${esc(text)}</text>
+  const tx = anchor === 'middle' || anchor === 'center' ? sx - w / 2 - b.x1 : sx - b.x1;
+  const ty = sy - b.y2 + h * 0.2;
+  const svg = `<svg width="${canvasW * scale}" height="${canvasH * scale}" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)})"><path d="${p.toPathData(2)}" fill="#FFFFFF"/></g>
 </svg>`;
-  const masked = await whiteMask(await sharp(Buffer.from(svg)).png().toBuffer());
-  return sharp(masked).resize(canvasW, canvasH, { kernel: sharp.kernel.nearest }).png().toBuffer();
+  const hi = await solidWhite(await sharp(Buffer.from(svg)).png().toBuffer());
+  return sharp(hi).resize(canvasW, canvasH, { kernel: sharp.kernel.nearest }).png().toBuffer();
 }
 
 async function buildDesktop(font) {
@@ -145,24 +182,29 @@ async function buildDesktop(font) {
     .png()
     .toBuffer();
 
-  base = await placeIcon(
-    base,
-    SRC_DESKTOP,
-    await detectIconBox(SRC_DESKTOP, DESKTOP_ICON_MAX_X, DESKTOP_ICON_MAX_H),
-    DESKTOP_ICON_POS.left,
-    DESKTOP_ICON_POS.top
-  );
+  const iconBox = await detectIconBox(SRC_DESKTOP, DESKTOP_ICON_MAX_X, DESKTOP_ICON_MAX_H);
+  const titleFit = fitTitlePath(font, BRAND, 400, 72);
+  const groupW = iconBox.width + DESKTOP_TITLE_GAP + titleFit.w;
+  // Italik yazi optik olarak saga kayar — grubu biraz sola cek
+  const opticalNudge = 22;
+  const groupLeft = Math.round((W - groupW) / 2) - opticalNudge;
+  const iconLeft = groupLeft;
+  const titleCenterX = groupLeft + iconBox.width + DESKTOP_TITLE_GAP + titleFit.w / 2;
+  const titleY = DESKTOP_ICON_TOP + Math.round(iconBox.height / 2);
 
-  const title = await renderTitleLayer(font, BRAND, W, H, 408, 82, 400, 72);
-  const sub = await renderMonoLayer(`${BRAND} — ${TAGLINE}`, W, H, W / 2, 166, 13, 'middle');
-  const ver = await renderMonoLayer('Version 1.02', W, H, W / 2, 182, 13, 'middle');
-  const copy = await renderMonoLayer(
-    `Copyright (c) ${BRAND}, 2026. All Rights Reserved.`,
+  base = await placeIcon(base, SRC_DESKTOP, iconBox, iconLeft, DESKTOP_ICON_TOP);
+
+  const title = await renderTitleLayer(font, BRAND, W, H, titleCenterX, titleY, 400, 72);
+  const sub = await renderTextLayer(font, `${BRAND} — ${TAGLINE}`, W, H, W / 2, 168, 20, 'middle');
+  const ver = await renderTextLayer(font, 'Sürüm 1.02', W, H, W / 2, 194, 19, 'middle');
+  const copy = await renderTextLayer(
+    font,
+    `Telif Hakkı (c) ${BRAND}, 2026. Tüm Hakları Saklıdır.`,
     W,
     H,
     W / 2,
-    370,
-    10,
+    372,
+    16,
     'middle'
   );
 
@@ -207,10 +249,10 @@ async function buildMobile(font) {
   const titleMaxW = W - titleLeft - 10;
 
   const title = await renderTitleLayer(font, BRAND, W, H, titleLeft, titleY, titleMaxW, 50, 'left');
-  const sub = await renderMonoLayer(`${BRAND} — ${TAGLINE}`, W, H, W / 2, 118, 11, 'middle');
-  const ver = await renderMonoLayer('Version 1.02', W, H, W / 2, 133, 11, 'middle');
-  const copy1 = await renderMonoLayer(`Copyright (c) ${BRAND}, 2026.`, W, H, W / 2, 224, 10, 'middle');
-  const copy2 = await renderMonoLayer('All Rights Reserved.', W, H, W / 2, 237, 10, 'middle');
+  const sub = await renderTextLayer(font, `${BRAND} — ${TAGLINE}`, W, H, W / 2, 120, 17, 'middle');
+  const ver = await renderTextLayer(font, 'Sürüm 1.02', W, H, W / 2, 142, 16, 'middle');
+  const copy1 = await renderTextLayer(font, `Telif Hakkı (c) ${BRAND}, 2026.`, W, H, W / 2, 224, 14, 'middle');
+  const copy2 = await renderTextLayer(font, 'Tüm Hakları Saklıdır.', W, H, W / 2, 244, 14, 'middle');
 
   base = await sharp(base)
     .composite([

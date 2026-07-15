@@ -2,11 +2,11 @@
   "brand": {
     "name": "PIXELA",
     "tagline": "Yazılım & Web",
-    "description": "Kurumsal web sitesi, yönetim paneli ve özel yazılım projeleri. İşletmenizi dijitalde profesyonel konumlandırıyoruz."
+    "description": "Ben Burak. Kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum — markanızı dijitalde öne çıkarırım."
   },
   "contact": {
     "whatsapp": "905319282677",
-    "whatsappMessage": "Merhaba, PIXELA web sitesinden yazıyorum.",
+    "whatsappMessage": "Merhaba Burak, PIXELA üzerinden yazıyorum.",
     "email": "info@pixela.com.tr",
     "businessEmail": "info@pixela.com.tr",
     "address": "Sakarya, Türkiye",
@@ -20,21 +20,21 @@
     "youtube": ""
   },
   "seo": {
-    "title": "PIXELA — Yazılım & Web",
-    "description": "Kurumsal web sitesi, e-ticaret, yönetim paneli ve özel yazılım. Sakarya ve Türkiye genelinde dijital çözümler.",
-    "keywords": "web tasarım, yazılım, kurumsal site, e-ticaret, Sakarya"
+    "title": "PIXELA — Burak | Yazılım & Web",
+    "description": "Sakarya merkezli yazılım ve web geliştirme. Kurumsal site, e-ticaret ve özel paneller — hızlı, mobil uyumlu, aramalarda görünür.",
+    "keywords": "web tasarım, yazılım, kurumsal site, e-ticaret, Sakarya, Burak"
   },
   "copy": {
-    "heroTitle": "Profesyonel Yazılım ve Web Çözümleri",
-    "heroSubtitle": "Referans projelerimizi incelemek için kaydırın",
-    "aboutTitle": "İşletmeniz İçin Dijital Altyapı",
-    "aboutBody": "PIXELA olarak kurumsal web siteleri, yönetim panelleri ve özel yazılım projeleri geliştiriyoruz. Her çözüm; performans, güvenilirlik ve markanızı dijitalde güçlü konumlandırma hedefiyle tasarlanır.",
-    "clientsTitle": "Birlikte Çalıştığımız İşletmeler",
-    "clientsBody": "Farklı sektörlerden işletmelerle birlikte çalıştık. Ortak hedefimiz her zaman aynıydı: dijitalde güçlü bir iz bırakmak.",
+    "heroTitle": "Yazılımla Markanı Öne Çıkar",
+    "heroSubtitle": "Seçili projelere göz atmak için kaydır",
+    "aboutTitle": "Merhaba, ben Burak",
+    "aboutBody": "PIXELA ile işletmelere kurumsal siteler, paneller ve özel yazılım geliştiriyorum. Amacım basit: sitenizi hızlı, anlaşılır ve aramalarda üst sıralara taşıyacak şekilde kurmak.",
+    "clientsTitle": "Birlikte Çalıştığım Markalar",
+    "clientsBody": "Farklı sektörlerden işletmelerle çalıştım. Ortak nokta hep aynıydı: dijitalde daha güçlü görünmek.",
     "contactTitle": "İletişim",
-    "contactBody": "Yazılım veya web projeniz için bizimle iletişime geçin. İhtiyacınızı dinleyelim, size özel bir çözüm planı oluşturalım.",
-    "ctaButton": "İletişime Geçin",
-    "ctaHeadline": "Proje Teklifi Alın"
+    "contactBody": "Yeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.",
+    "ctaButton": "WhatsApp’tan Yazın",
+    "ctaHeadline": "Projenizi Konuşalım"
   },
   "projects": [
     {
@@ -43,7 +43,8 @@
       "title": "Dila Lazer",
       "subtitle": "E-Ticaret Sitesi",
       "url": "https://www.dilalazer.com/",
-      "description": "Neon LED, lazer kesim ve özel tasarım ürünleri için e-ticaret sitesi. 81 ile teslimat, kendin tasarla modülü ve online sipariş altyapısı."
+      "description": "Neon LED, lazer kesim ve özel tasarım ürünleri için e-ticaret sitesi. 81 ile teslimat, kendin tasarla modülü ve online sipariş altyapısı.",
+      "poster": "/textures/thumb_fallback.png"
     },
     {
       "uid": "lider-teknik",
@@ -61,7 +62,8 @@
       "title": "RK Rent A Car",
       "subtitle": "Kurumsal Site",
       "url": "https://sakaryarkrentacar.com/",
-      "description": "Sakarya araç kiralama firması için kurumsal site. Online rezervasyon, filo tanıtımı, kampanyalar ve 7/24 iletişim formu."
+      "description": "Sakarya araç kiralama firması için kurumsal site. Online rezervasyon, filo tanıtımı, kampanyalar ve 7/24 iletişim formu.",
+      "poster": "/textures/thumb_fallback.png"
     }
   ]
 }

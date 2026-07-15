@@ -5,7 +5,6 @@ PIXELA - YEREL SITE
 SITEYI DUZENLEMEK ICIN:
 
   site-config.json  ->  marka, iletisim, sosyal medya, projeler, metinler
-
   pixela-logo-*.svg ->  logolar
   pixela-boot-screen*.png -> acilis ekrani
   videos/           -> proje videolari
@@ -13,6 +12,9 @@ SITEYI DUZENLEMEK ICIN:
 
 Siteyi baslat: BASLAT.cmd veya npm start
 Adres: http://127.0.0.1:8888/
+
+Mod: tamamen YEREL — uzak shader.se / Mux CDN yok.
+Kontrol: curl -I http://127.0.0.1:8888/ping  -> X-Pixela-Ver
 
 =============================
 
@@ -48,13 +50,13 @@ ONEMLI — 5500 PORTU (Live Server) KULLANMAYIN!
 
 
 
-SANAL SUNUCU (VPS) — TURKCE ICIN
+SUNUCU — YEREL BAGIMSIZ
 
 =============================
 
 
 
-1) Tum dosyalari yukle (fonts/ klasoru dahil!)
+1) Tum dosyalari yukle (fonts/ ve videos/ dahil!)
 
 2) node server.js  veya BASLAT.cmd  calissin (pm2 ile surekli acik tut)
 
@@ -68,17 +70,15 @@ SANAL SUNUCU (VPS) — TURKCE ICIN
 
    - TUM trafik Node'a gitmeli (ornek: nginx-pixela.conf)
 
-   - /_next/ dosyalarini nginx cache'leme — Ingilizce kalir!
+   - /_next/ dosyalarini nginx cache'leme — yamalar uygulanmaz!
 
 
 
 5) Kontrol:
 
-   curl -I https://siteniz.com/ping          -> X-Pixela-Ver: 106
+   curl -I https://siteniz.com/ping          -> X-Pixela-Ver
 
-   curl -I https://siteniz.com/_next/static/chunks/0nr6lqdt2xw72.js
-
-      -> X-Pixela-Chunk: cached veya static-patched
+   Network sekmesinde shader.se / stream.mux.com olmamali
 
 
 

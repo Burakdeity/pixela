@@ -30,23 +30,23 @@ const BASE_PAIRS = [
   ['Shader Sweden AB', `${BRAND}`],
   [
     'Empowering Your Business with Next-Generation Interactive 3D and AI Solutions. Based in Sweden and Working with Brands and Agencies Worldwide.',
-    'PIXELA — işletmelere özel yazılım, kurumsal web sitesi ve dijital çözümler. Markanızı profesyonel bir şekilde dijitale taşıyoruz.',
+    'PIXELA — Burak. Kurumsal web, özel yazılım ve dijital çözümler. Markanızı ekranda güçlü gösterir, aramalarda öne çıkarırım.',
   ],
   [
     'Empowering your business with next-generation interactive 3D and AI solutions.',
-    'İşletmeniz için güvenilir yazılım ve web çözümleri.',
+    'İşletmeniz için sade, hızlı ve etkili yazılım ile web çözümleri.',
   ],
   [`${BRAND} Development Studio`, `${BRAND} — Yazılım & Web`],
 
   // —— Google / JSON-LD / SEO ——
   [
     'Creative development studio specialized in interactive 3D and AI solutions.',
-    'İşletmelere özel yazılım, kurumsal web sitesi ve dijital çözümler.',
+    'Kurumsal web sitesi, yönetim paneli ve işletmeye özel yazılım geliştirme.',
   ],
   ['Creative Development Services', 'Yazılım ve Web Hizmetleri'],
   [
     'Interactive 3D experiences, AI solutions, and full-stack development for brands worldwide.',
-    'Kurumsal web sitesi, yönetim paneli ve özel yazılım projeleri.',
+    'Kurumsal site, e-ticaret ve özel yazılım — uçtan uca geliştirme.',
   ],
   ['Interactive 3D & AI Development', 'Yazılım ve Web Geliştirme'],
   ['Shader Sweden AB', `${BRAND}`],
@@ -62,8 +62,8 @@ const BASE_PAIRS = [
   ['Skip to content', 'İçeriğe geç'],
   ['Selected Work', 'Projelerim'],
   ['About Us', 'Hakkımda'],
-  ['Book a Call Today', 'Proje Teklifi Alın'],
-  ['Book a call', 'İletişime Geçin'],
+  ['Book a Call Today', 'Projenizi Konuşalım'],
+  ['Book a call', 'WhatsApp’tan Yazın'],
   ['General Enquiries', 'Genel Sorular'],
   ['Visit us', 'Adres'],
   ['New business', 'Yeni projeler'],
@@ -72,6 +72,9 @@ const BASE_PAIRS = [
   ['Accessibility Statement', 'Erişilebilirlik Bildirimi'],
   ['Send email to hello@shader.se', `${CONTACT_EMAIL} adresine e-posta gönder`],
   ['Send email to ceo@shader.se', `${CONTACT_EMAIL} adresine e-posta gönder`],
+  [`Send email to ${CONTACT_EMAIL}`, `${CONTACT_EMAIL} adresine e-posta gönder`],
+  ['Send email to ', 'E-posta gönder: '],
+  ['Main navigation', 'Ana menü'],
   ['hello@shader.se', CONTACT_EMAIL],
   ['ceo@shader.se', CONTACT_EMAIL],
   ['secretary@shader.se', CONTACT_EMAIL],
@@ -80,26 +83,53 @@ const BASE_PAIRS = [
   ['<h2>Contact</h2>', '<h2>İletişim</h2>'],
   ['Book a call on Cal.com, opens in new tab', 'WhatsApp ile iletişime geçin, yeni sekmede açılır'],
   ['Office address', 'Ofis adresi'],
+  ['street:"Laxholmstorget 3"', 'street:"Sakarya"'],
+  ['postalCode:"602 21"', 'postalCode:""'],
+  ['city:"Norrköping"', 'city:"Sakarya"'],
+  ['country:"Sweden",countryCode:"SE"', 'country:"Türkiye",countryCode:"TR"'],
+  ['Laxholmstorget 3', 'Sakarya'],
   [
     'Reach out today to our CEO for new business enquiries at',
-    'Yeni proje ve iş birliği için bana ulaşın:',
+    'Yeni proje için bana yazın:',
   ],
+  ['Continue to next project:', 'Sonraki projeye geç:'],
+  ['Continue to next project', 'Sonraki projeye geç'],
+  ['“Hello”', '“Merhaba”'],
+  ['"Hello"', '"Merhaba"'],
+  ['text:"Continue"', 'text:"Devam et"'],
+  ['children:"Continue"', 'children:"Devam et"'],
+  ['setProperty("text","Loading...")', 'setProperty("text","Yükleniyor...")'],
+  ['setProperty("text","Continue")', 'setProperty("text","Devam et")'],
+  ["setProperty('text','Loading...')", "setProperty('text','Yükleniyor...')"],
+  ["setProperty('text','Continue')", "setProperty('text','Devam et')"],
+  ['Loading...', 'Yükleniyor...'],
+  ['Visit eHealth Arena website, opens in new tab', 'eHealth Arena sitesini ziyaret et, yeni sekmede açılır'],
+  ['website, opens in new tab', 'sitesini ziyaret et, yeni sekmede açılır'],
+  ['opens in new tab', 'yeni sekmede açılır'],
+  [
+    "This page couldn't load",
+    'Bu sayfa yüklenemedi',
+  ],
+  ['Reload to try again, or go back.', 'Yeniden denemek için yenileyin veya geri dönün.'],
+  ['Reload', 'Yenile'],
+  ['Go back to projects overview', 'Projelere dön'],
+  ['This page couldn\'t load', 'Bu sayfa yüklenemedi'],
 
   // —— Hero ——
   [
     '# A Creative Development Studio, Plugged into the Future\n\nScroll to Inspect Our Closed Deals\n',
-    '# Profesyonel Yazılım ve Web Çözümleri\n\nReferans Projelerimizi İncelemek İçin Kaydırın\n',
+    '# Yazılımla Markanı Öne Çıkar\n\nSeçili Projelere Göz Atmak İçin Kaydır\n',
   ],
   [
     'A Creative Development Studio, Plugged into the Future',
-    'Profesyonel Yazılım ve Web Çözümleri',
+    'Yazılımla Markanı Öne Çıkar',
   ],
-  ['Scroll to Inspect Our Closed Deals', 'Referans projelerimizi incelemek için kaydırın'],
+  ['Scroll to Inspect Our Closed Deals', 'Seçili projelere göz atmak için kaydır'],
 
   // —— Projeler ——
   [
     'Browse our project carousel to explore our selected work.',
-    'Tamamladığımız yazılım ve web projelerini keşfetmek için kaydırın.',
+    'Tamamladığım yazılım ve web işlerini keşfetmek için kaydır.',
   ],
   ['Project carousel', 'Proje karuseli'],
   ['Previous project', 'Önceki proje'],
@@ -113,6 +143,8 @@ const BASE_PAIRS = [
   ['Back to projects', 'Projelere dön'],
   ['Next Project', 'Sonraki proje'],
   ['The Management', 'Yönetim'],
+  ['Scroll to About Us', 'Hakkımda bölümüne kaydır'],
+  ['Skip to content', 'İçeriğe geç'],
 
   // —— Alt başlıklar ——
   ['3D Interior Designer', 'Web Tasarımı'],
@@ -133,99 +165,99 @@ const BASE_PAIRS = [
   // —— Hakkımda ——
   [
     '# Making Digital Storytelling More Playful, Powerful, and Alive\n\nShader is a creative development studio specialized in building interactive 3D and AI solutions for the web. Serious about business, based in Sweden, and working with brands, agencies and designers worldwide.\n\nPlugged into the future. While we\'re a small team of creative engineers, we have a hand-picked network of collaborators: designers, 3D artists, copywriters, animators, and creative technologists, ready to plug in with an array of capabilities.\n\nThis modular approach means we can scale and adapt to each challenge. Whether it\'s a WebGL experiment, an interactive product visualization, a mobile app, or an AI-driven experience, we help bold brands stand out across every screen.\n\nWe build storytelling platforms that demand attention and reward curiosity. We push digital mediums to places you haven\'t seen before, and have fun doing it. Beyond code, we offer 3D design and animation, UI and motion design, concepts and digital strategy, full-stack development, and creative consulting.\n\nWhether it\'s prototyping an idea, launching an augmented reality experience, or bringing high-fidelity visuals to life, Shader bridges the gap between creative ambition and technical execution. Our process is hands-on, collaborative, and tailored for teams that value both craft and innovation. We combine technical expertise with a designer\'s eye, ensuring that every interaction feels natural and every pixel is perfectly placed. We\'re not your regular IT department. We don\'t troubleshoot printers.\n',
-    '# İşletmeniz İçin Dijital Altyapı\n\nPIXELA olarak kurumsal web siteleri, yönetim panelleri ve özel yazılım projeleri geliştiriyoruz. Her çözüm; performans, güvenilirlik ve markanızı dijitalde güçlü konumlandırma hedefiyle tasarlanır.\n\nKurumsal site, e-ticaret, randevu veya sipariş sistemi, CRM veya işletmenize özel panel — ihtiyacınıza uygun uçtan uca hizmet sunuyoruz. Tasarımdan yayına almaya kadar süreci net ve şeffaf yönetiyoruz.\n\nBu sayfada farklı sektörlerden referans projelerimizi bulabilirsiniz. Her proje, işletmenin dijitalde daha profesyonel görünmesi ve müşteriye daha kolay ulaşması için geliştirildi.\n\nMobil uyumlu arayüz, hızlı yükleme süreleri ve sürdürülebilir kod altyapısı standartlarımızdır. Uzun vadeli kullanım ve kolay yönetim önceliğimizdir.\n\nYeni projeniz için bizimle iletişime geçin; ihtiyacınızı birlikte analiz edip size özel bir yol haritası oluşturalım.\n',
+    '# Merhaba, ben Burak\n\nPIXELA ile işletmelere kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum. Her işte hedefim aynı: markanızı dijitalde net, hızlı ve güvenilir göstermek.\n\nKurumsal vitrin, e-ticaret, randevu veya sipariş sistemi, CRM ya da size özel panel — ihtiyaca göre uçtan uca kuruyorum. Tasarımdan yayına kadar süreç şeffaf ilerler; sürpriz yok, net adımlar var.\n\nSiteler mobil uyumlu, hızlı ve SEO temelli hazırlanır. Amaç, Google’da görünürlüğünüzü artırmak ve müşterinin size kolay ulaşmasını sağlamak.\n\nAşağıda farklı sektörlerden seçili işlerimi görebilirsiniz. Her biri, bir işletmeyi ekranda daha güçlü kılmak için yapıldı.\n\nYeni bir proje düşünüyorsanız yazın; birlikte ihtiyacı netleştirip size özel bir yol haritası çıkaralım.\n',
   ],
   [
     'Making Digital Storytelling More Playful, Powerful, and Alive',
-    'İşletmeniz İçin Dijital Altyapı',
+    'Merhaba, ben Burak',
   ],
   [
     'Shader is a creative development studio specialized in building interactive 3D and AI solutions for the web. Serious about business, based in Sweden, and working with brands, agencies and designers worldwide.',
-    'PIXELA olarak kurumsal web siteleri, yönetim panelleri ve özel yazılım projeleri geliştiriyoruz.',
+    'PIXELA ile işletmelere kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum.',
   ],
   [
     "Plugged into the future. While we're a small team of creative engineers, we have a hand-picked network of collaborators: designers, 3D artists, copywriters, animators, and creative technologists, ready to plug in with an array of capabilities.",
-    'Kurumsal site, yönetim paneli, e-ticaret veya özel yazılım — ihtiyacınıza göre uçtan uca çözüm sunuyorum.',
+    'Kurumsal vitrin, e-ticaret, randevu sistemi veya özel panel — ihtiyaca göre uçtan uca kuruyorum.',
   ],
   [
     "This modular approach means we can scale and adapt to each challenge. Whether it's a WebGL experiment, an interactive product visualization, a mobile app, or an AI-driven experience, we help bold brands stand out across every screen.",
-    'Her proje farklıdır: vitrin sitesi, online satış, randevu sistemi veya işletmeye özel yazılım. Hepsinde hedef aynı — dijitalde güçlü ve profesyonel görünmek.',
+    'Her proje farklıdır; ortak hedef hep aynı: dijitalde net, hızlı ve profesyonel görünmek.',
   ],
   [
     "We build storytelling platforms that demand attention and reward curiosity. We push digital mediums to places you haven't seen before, and have fun doing it. Beyond code, we offer 3D design and animation, UI and motion design, concepts and digital strategy, full-stack development, and creative consulting.",
-    'Bu sayfada daha önce geliştirdiğim yazılımları ve web projelerini görüyorsunuz. Her biri bir işletmenin dijitalde öne çıkması için tasarlandı.',
+    'Her site mobil uyumlu, hızlı ve SEO temelli hazırlanır — markanızı aramalarda üst sıralara taşımak için.',
   ],
   [
     "Whether it's prototyping an idea, launching an augmented reality experience, or bringing high-fidelity visuals to life, Shader bridges the gap between creative ambition and technical execution. Our process is hands-on, collaborative, and tailored for teams that value both craft and innovation. We combine technical expertise with a designer's eye, ensuring that every interaction feels natural and every pixel is perfectly placed. We're not your regular IT department. We don't troubleshoot printers.",
-    'Sürecim sade: dinlemek, planlamak, geliştirmek, yayına almak. Mobil uyumlu, hızlı ve yönetilebilir — işletmenizin dijital vitrini olacak şekilde.',
+    'Sürecim net: dinle, planla, geliştir, yayına al. Yönetmesi kolay, işletmenin dijital vitrini olacak şekilde.',
   ],
 
   // —— İkinci hakkımda bölümü ——
   [
     '# For Companies Serious About Technology\n\nIn today\'s fast-paced corporate landscape, you need a partner who understands the bottom line. At Shader, we engineer success through strategic alliances and mutual profitability. Our team is ready to synergize with your organization, unlock new verticals, and maximize your digital ROI. We don\'t just close deals; we deliver results that compound.\n\nWe leverage state-of-the-art technology to give your brand a decisive competitive advantage. Whether disrupting the market with paradigm-shifting 3D experiences or streamlining operations with cutting-edge AI, we provide turnkey solutions that scale. We merge high-performance engineering with executive-level design to build assets that appreciate your brand value.\n\nReady to take your enterprise to the next level? Don\'t waste valuable time. Review our portfolio, crunch the numbers, and you\'ll see the trajectory points one way: up. Pick up the phone, send a fax, or schedule a consultation. The future of your business is waiting. Let\'s execute.\n',
-    '# İşletmenizi Dijitalde Büyütün\n\nDoğru dijital altyapı, işletmenize yeni müşteri kapıları açar. Profesyonel web sitesi ve yazılım çözümleriyle markanız internette güven verir, hizmetleriniz net biçimde sunulur.\n\nMobil uyumlu tasarım, hızlı performans ve kolay yönetim her projede standarttır. Vitrin sitesi, online sipariş veya randevu sistemi — iş modelinize uygun çözüm üretiyoruz.\n\nReferans projelerimizi inceleyerek hangi alanlarda çalıştığımızı ve sunduğumuz kaliteyi görebilirsiniz. Yeni projeniz için iletişime geçmeniz yeterli.\n',
+    '# Dijitalde Büyümek İsteyenler İçin\n\nDoğru site ve yazılım, yeni müşteri kapısı açar. Markanız internette güven verir; hizmetleriniz net anlatılır.\n\nHız, mobil uyum ve SEO her işte standarttır. Vitrin sitesi, online sipariş veya randevu sistemi — iş modelinize uygun çözümü birlikte kurarız.\n\nReferanslara bakın; kaliteyi ve yaklaşımı orada görürsünüz. Hazırsanız tek bir mesaj yeter.\n',
   ],
   [
     "In today's fast-paced corporate landscape, you need a partner who understands the bottom line. At Shader, we engineer success through strategic alliances and mutual profitability. Our team is ready to synergize with your organization, unlock new verticals, and maximize your digital ROI. We don't just close deals; we deliver results that compound.",
-    'Doğru web sitesi ve yazılım, işletmenize yeni müşteri kapısı açar. Markanız internette profesyonel görünür, hizmetleriniz net anlatılır.',
+    'Doğru site ve yazılım, yeni müşteri kapısı açar. Markanız güven verir; hizmetleriniz net anlatılır.',
   ],
   [
     "We leverage state-of-the-art technology to give your brand a decisive competitive advantage. Whether disrupting the market with paradigm-shifting 3D experiences or streamlining operations with cutting-edge AI, we provide turnkey solutions that scale. We merge high-performance engineering with executive-level design to build assets that appreciate your brand value.",
-    'Mobil uyumlu, hızlı ve kolay yönetilebilir siteler; sipariş, randevu veya yönetim paneli — işletmenize özel yazılım çözümleri.',
+    'Hız, mobil uyum ve SEO standarttır. Sipariş, randevu veya panel — işletmenize özel yazılım çözümleri.',
   ],
   [
     "Ready to take your enterprise to the next level? Don't waste valuable time. Review our portfolio, crunch the numbers, and you'll see the trajectory points one way: up. Pick up the phone, send a fax, or schedule a consultation. The future of your business is waiting. Let's execute.",
-    'Portföyümdeki projelere göz atın. Yeni web siteniz veya yazılım projeniz için hemen iletişime geçin.',
+    'Projelere göz atın. Yeni siteniz veya yazılımınız için hemen yazın — birlikte başlayalım.',
   ],
 
   // —— 3D bölüm başlıkları (canvas metin) ——
   [
     "Still Not Convinced We're Serious About Business?",
-    'Hâlâ işimize ciddiyetle yaklaştığımıza inanmıyor musunuz?',
+    'Hâlâ ikna olmadınız mı?',
   ],
   [
     "We've got one last trick up our sleeve.",
-    'Cebimizde son bir sürpriz daha var.',
+    'Bir sürpriz daha var.',
   ],
   [
     "Had Enough Reading? Let's Shred This Thing.",
-    'Okumaktan sıkıldınız mı? Projelere geçelim.',
+    'Yeterince okuduk — projelere geçelim.',
   ],
   [
     'A High Tech Business Solutions Company',
-    'Yazılım ve Kurumsal Web Çözümleri',
+    'Yazılım ve Kurumsal Web',
   ],
   ['Check Out This Golden Tie', 'Şu Altın Kravata Bir Bakın'],
   [
     'You made it this far. You deserve a tie-break.',
-    'Buraya kadar geldiniz — kravat molası hak ettiniz.',
+    'Buraya kadar geldiniz — kısa bir mola.',
   ],
   ['Good buy.', 'İyi alışverişler!'],
 
   // —— Referanslar ——
   [
     '# A Showcase of Valued Clients\n\nWe have had the benefit of working with a large pool of great clients throughout the years. Our partnerships ranges from some of the most recognizable Swedish brands to international innovators.\n',
-    '# Birlikte Çalıştığım İşletmeler\n\nFarklı sektörlerden işletmelerle birlikte çalıştım. Ortak hedefimiz her zaman aynıydı: dijitalde güçlü bir iz bırakmak ve işletmeyi öne çıkarmak.\n',
+    '# Birlikte Çalıştığım Markalar\n\nFarklı sektörlerden işletmelerle çalıştım. Ortak nokta hep aynıydı: dijitalde daha güçlü görünmek ve öne çıkmak.\n',
   ],
   [
     'We have had the benefit of working with a large pool of great clients throughout the years. Our partnerships ranges from some of the most recognizable Swedish brands to international innovators.',
-    'Farklı sektörlerden işletmelerle çalıştım; hepsinde dijitalde öne çıkmalarına yardımcı oldum.',
+    'Farklı sektörlerden işletmelerle çalıştım; her birinde dijitalde öne çıkmalarına yardımcı oldum.',
   ],
 
   // —— İletişim ——
   [
     '# Contact\n\nContact us about your digital project idea or general enquires. Let\'s interface, call us today!\n',
-    '# İletişim\n\nYazılım veya web projeniz için bizimle iletişime geçin. İhtiyacınızı dinleyelim, size özel bir çözüm planı oluşturalım.\n',
+    '# İletişim\n\nYeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.\n',
   ],
   [
     "Contact us about your digital project idea or general enquires. Let's interface, call us today!",
-    'Yazılım veya web projeniz için bizimle iletişime geçin. İhtiyacınızı dinleyelim, size özel bir çözüm planı oluşturalım.',
+    'Yeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.',
   ],
   [
     '# Act now! Book a Consultation.\n\nCut along the dotted line and mail this to the post address below for a free 30 minute video call consultation.\n',
-    '# Projenize Başlayalım\n\nÜcretsiz ön görüşme için iletişime geçin — projenizi birlikte planlayalım.\n',
+    '# Haydi Başlayalım\n\nÜcretsiz ön görüşme için yazın — projenizi birlikte planlayalım.\n',
   ],
-  ['# Had Enough Reading? Let\'s Shred This Thing.\n', '# Okumaktan sıkıldınız mı? Projelere geçelim.\n'],
+  ['# Had Enough Reading? Let\'s Shred This Thing.\n', '# Yeterince okuduk — projelere geçelim.\n'],
 
   // —— Erişilebilirlik ——
   [
@@ -247,58 +279,138 @@ const BASE_PAIRS = [
     '# Eksik Kaldığımız Noktalar\n\nBu varlığı geleceğe hazırlamak için elimizden geleni yapsak da, metin ve etkileşimli öğeleri yalnızca 3B canvas’a render etmek piyasadaki her yardımcı teknolojiyle kusursuz çalışmayabilir. Köşe kesmedik — sadece üçüncü boyuta çıkardık — ancak deneyimin herkes için yüzde yüz sorunsuz olmayabileceğini kabul ediyoruz.\n',
   ],
 
-  // —— Proje açıklamaları (portföy) ——
+  // —— Proje açıklamaları (portföy) — TAM paragraflar ——
   [
     "We created an interactive 3D platform that explores how the latest e-health solutions work in practice. From the patient's home to hospital environments and care providers' workplaces. Users can follow real care journeys, and understand how it all connects to create safer, more efficient care.",
     'Sağlık sektörü için geliştirdiğim interaktif web platformu — işletmenin hizmetlerini dijitalde anlaşılır şekilde sunması için tasarlandı.',
+  ],
+  [
+    'Select Concept is a Swedish brand offering high-quality products for restaurants, hotels and cafes. We teamed up with them to conceptualize, design, and develop a user-friendly yet powerful 3D product planning tool, along with a new website. The tool includes over 100 modeled products, and gives the user the ability to freely design and plan their room, buffet tables and products within a realistic 3D environment. Once completed, the user can add the products to the cart and request a quote.',
+    'Restoran ve otel işletmesi için ürün kataloğu ve 3D planlama aracı geliştirdim; müşteriler ürünleri kolayca inceleyip sepete ekleyerek teklif isteyebiliyor.',
   ],
   [
     'Select Concept is a Swedish brand offering high-quality products for restaurants, hotels and cafes. We teamed up with them to conceptualize, design, and develop a user-friendly yet powerful 3D product planning tool, along with a new website.',
     'Restoran ve otel işletmesi için ürün kataloğu ve kurumsal web sitesi geliştirdim; müşteriler ürünleri kolayca inceleyebiliyor.',
   ],
   [
+    'The tool includes over 100 modeled products, and gives the user the ability to freely design and plan their room, buffet tables and products within a realistic 3D environment. Once completed, the user can add the products to the cart and request a quote.',
+    '100’den fazla ürünle oda ve büfe düzenini 3D ortamda planlayıp sepete ekleyerek teklif alınabiliyor.',
+  ],
+  [
+    "Funny is the design work of Daniele Buffa, a Roman designer now based in London, UK. Buffa ('boo-f:ah) from the Italian means funny, comic, or droll. We helped develop the portfolio website, which is a sophisticated single-page application that features integrated interactive visuals and a progressive design structure.",
+    'Tasarımcı portföy web sitesi — yaratıcı işleri öne çıkaran minimal ve etkileyici arayüz. İnteraktif görseller ve modern tek sayfa yapı ile markayı dijitalde güçlü gösterir.',
+  ],
+  [
+    "Funny is the design work of Daniele Buffa, a Roman designer now based in London, UK. Buffa ('boo-f:ah) from the Italian means funny, comic, or droll.",
+    'Tasarımcı portföy web sitesi — yaratıcı işleri öne çıkaran minimal ve etkileyici arayüz.',
+  ],
+  [
+    'We helped develop the portfolio website, which is a sophisticated single-page application that features integrated interactive visuals and a progressive design structure.',
+    'İnteraktif görseller ve modern tek sayfa yapı ile markayı dijitalde güçlü gösterir.',
+  ],
+  [
+    'Gamily is the dating and friend app designed for gamers who are looking for meaningful relationships with fellow gamers. We contributed to the development and deployment of the landing page. The webpage showcases the app\'s brand identity by integrating creative visual animations complemented by custom-built 3D assets.',
+    'Mobil uygulama projesi — kullanıcı odaklı arayüz ve güvenilir altyapı ile geliştirildi. Landing sayfasında marka kimliğini yansıtan animasyonlar ve özel 3D görseller kullanıldı.',
+  ],
+  [
     'Gamily is the dating and friend app designed for gamers who are looking for meaningful relationships with fellow gamers.',
     'Mobil uygulama projesi — kullanıcı odaklı arayüz ve güvenilir altyapı ile geliştirildi.',
+  ],
+  [
+    'We contributed to the development and deployment of the landing page. The webpage showcases the app\'s brand identity by integrating creative visual animations complemented by custom-built 3D assets.',
+    'Landing sayfasında marka kimliğini yansıtan animasyonlar ve özel 3D görseller kullanıldı.',
+  ],
+  [
+    'Alamance Foods make fun foods. We made their web page using creative design ideas complemented with their products in 3D. All models were made by us using Blender. For the programming of the models we used React Three Fiber. A particularly smart thing in this solution is the shader programming of the materials to make them behave realistically and still have high performance on slower devices.',
+    'Gıda markası için dikkat çekici kurumsal web sitesi; ürünleri öne çıkaran modern tasarım. 3D modeller Blender ile hazırlandı; performanslı ve gerçekçi görünüm için optimize edildi.',
   ],
   [
     'Alamance Foods make fun foods. We made their web page using creative design ideas complemented with their products in 3D.',
     'Gıda markası için dikkat çekici kurumsal web sitesi; ürünleri öne çıkaran modern tasarım.',
   ],
   [
+    'All models were made by us using Blender. For the programming of the models we used React Three Fiber. A particularly smart thing in this solution is the shader programming of the materials to make them behave realistically and still have high performance on slower devices.',
+    '3D modeller Blender ile hazırlandı; performanslı ve gerçekçi görünüm için optimize edildi.',
+  ],
+  [
+    'All models were made by us using Blender. For the programming of the models we used React Three Fiber. A particularly smart thing in this solution is the materyal programlama to make them behave realistically and still have high performance on slower devices.',
+    '3D modeller Blender ile hazırlandı; performanslı ve gerçekçi görünüm için optimize edildi.',
+  ],
+  [
     'We manage the entire web platform for Scenkonst Öst where Norrköping Symphony Orchestra is a part. The audience can browse concerts, book tickets, buy gift cards and much more.',
     'Etkinlik ve bilet satışı için tam kapsamlı web platformu — ziyaretçiler kolayca gezinebiliyor ve işlem yapabiliyor.',
+  ],
+  [
+    'We made a configurator for a company that sells glass in different forms. The user can create their own glass rails, walls and separate pieces using our 3D configurator. The prices are being fetched from an API so that we can calculate the total cost as the user designs. Some models have been modelled by hand and some are generated as the user modifies the parameters in the configurator.',
+    'Online ürün yapılandırıcı ve fiyat hesaplama sistemi — müşteriler kendi tasarımlarını oluşturup anında fiyat görebiliyor. Parametreler değiştikçe modeller ve maliyet güncellenir.',
   ],
   [
     'We made a configurator for a company that sells glass in different forms. The user can create their own glass rails, walls and separate pieces using our 3D configurator. The prices are being fetched from an API so that we can calculate the total cost as the user designs.',
     'Online ürün yapılandırıcı ve fiyat hesaplama sistemi — müşteriler kendi tasarımlarını oluşturup anında fiyat görebiliyor.',
   ],
   [
+    'Some models have been modelled by hand and some are generated as the user modifies the parameters in the configurator.',
+    'Parametreler değiştikçe modeller ve maliyet güncellenir.',
+  ],
+  [
+    'What was supposed to be a one shot PR event became a lasting piece of the SPP website. The visitor takes a photo of him/herself and writes a short description of what the days would look like when retired from work. The program then generates a realistic video of the person in the dream that they described along with a description of what life could look like. A presentation page containing the video and description is emailed to the visitor. This PR stunt helped transfer customers to SPP on its own.',
+    'Etkileşimli kampanya web uygulaması — ziyaretçi katılımını artıran özel yazılım projesi. Kullanıcı fotoğraf ve metin girer; sistem video ve sunum sayfası üretir, e-posta ile iletir.',
+  ],
+  [
     'What was supposed to be a one shot PR event became a lasting piece of the SPP website. The visitor takes a photo of him/herself and writes a short description of what the days would look like when retired from work.',
     'Etkileşimli kampanya web uygulaması — ziyaretçi katılımını artıran özel yazılım projesi.',
+  ],
+  [
+    'The program then generates a realistic video of the person in the dream that they described along with a description of what life could look like. A presentation page containing the video and description is emailed to the visitor. This PR stunt helped transfer customers to SPP on its own.',
+    'Kullanıcı fotoğraf ve metin girer; sistem video ve sunum sayfası üretir, e-posta ile iletir.',
+  ],
+  [
+    "ICA is one of Sweden's largest grocery stores. For Christmas 2024 we made an AR game for them where users could scan ICA's products and unlock features in the game. The game was developed with 8th wall which is the same software used in Pokemon GO. This makes the AR experience work fluently on both Android and iOS. Models and textures made with Blender.",
+    'Perakende markası için mobil AR deneyimi — müşteri etkileşimini artıran yazılım projesi. Android ve iOS’ta akıcı çalışan AR oyun; modeller Blender ile hazırlandı.',
   ],
   [
     "ICA is one of Sweden's largest grocery stores. For Christmas 2024 we made an AR game for them where users could scan ICA's products and unlock features in the game.",
     'Perakende markası için mobil AR deneyimi — müşteri etkileşimini artıran yazılım projesi.',
   ],
   [
+    'The game was developed with 8th wall which is the same software used in Pokemon GO. This makes the AR experience work fluently on both Android and iOS. Models and textures made with Blender.',
+    'Android ve iOS’ta akıcı çalışan AR oyun; modeller Blender ile hazırlandı.',
+  ],
+  [
+    'We created a real-time 3D visual experience detailing the physical journey and logistics of two shipping containers. The objective of this application was to provide users with a detailed and engaging insight into the complex operations conducted at the docks of Norrköping. The application was made with Next.js, React, and TypeScript. All 3D models were created with Blender and integrated into the web environment using React Three Fiber.',
+    'Lojistik firması için görsel anlatım web uygulaması — karmaşık süreçleri basit ve etkileyici şekilde sunuyor. Modern web teknolojileri ve 3D modellerle hazırlandı.',
+  ],
+  [
     'We created a real-time 3D visual experience detailing the physical journey and logistics of two shipping containers. The objective of this application was to provide users with a detailed and engaging insight into the complex operations conducted at the docks of Norrköping.',
     'Lojistik firması için görsel anlatım web uygulaması — karmaşık süreçleri basit ve etkileyici şekilde sunuyor.',
   ],
   [
-    'This visualization was created for Händelö Eco-Industrial Park and shows how different factories and units exchange by-products, reducing waste and maximizing overall efficiency.',
-    'Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif.',
+    'The application was made with Next.js, React, and TypeScript. All 3D models were created with Blender and integrated into the web environment using React Three Fiber.',
+    'Modern web teknolojileri ve 3D modellerle hazırlandı.',
   ],
-  ['Visit HEIP website, opens in new tab', 'Lider Teknik sitesini ziyaret et, yeni sekmede açılır'],
-  ['HEIP', 'Lider Teknik'],
-  ['HEIP – 3D Visualisation', 'Lider Teknik — Kurumsal Site'],
+  [
+    'This visualization was created for Händelö Eco-Industrial Park and shows how different factories and units exchange by-products, reducing waste and maximizing overall efficiency.',
+    'Bu görselleştirme Händelö Eko-Endüstri Parkı için hazırlandı; fabrikaların yan ürün alışverişini, atık azaltmayı ve genel verimliliği anlatıyor.',
+  ],
+  // Proje tipi / başlık etiketleri (Siteyi ziyaret et üstü)
+  ['AI Image and Video Generator', 'YZ Görüntü ve Video'],
+  ['3D Flow Visualization', '3D Akış Görselleştirme'],
+  ['3D Visualisation', '3D Görselleştirme'],
+  ['3D Showroom', '3D Vitrin'],
+  ['AR Game', 'AR Oyun'],
+  ['"headline":"Portfolio"', '"headline":"Portföy"'],
+  ['"headline":"Website"', '"headline":"Web Sitesi"'],
+  ['children:"Portfolio"', 'children:"Portföy"'],
+  ['children:"Website"', 'children:"Web Sitesi"'],
+  ['>Portfolio</', '>Portföy</'],
+  ['>Website</', '>Web Sitesi</'],
+  ['in collaboration with', 'iş birliğiyle'],
+  ['Visit HEIP website, opens in new tab', 'HEIP sitesini ziyaret et, yeni sekmede açılır'],
+  ['HEIP – 3D Visualisation', 'HEIP — 3D Görselleştirme'],
   ['Visit site', 'Siteyi ziyaret et'],
   ['Main navigation', 'Ana menü'],
   ['Go back to projects overview', 'Projelere dön'],
   ['Project details', 'Proje detayları'],
-  [
-    "Funny is the design work of Daniele Buffa, a Roman designer now based in London, UK. Buffa ('boo-f:ah) from the Italian means funny, comic, or droll.",
-    'Tasarımcı portföy web sitesi — yaratıcı işleri öne çıkaran minimal ve etkileyici arayüz.',
-  ],
 ];
 
 function expandVariants(from, to) {
@@ -353,6 +465,9 @@ const JS_EXTRA = [
   ['children:"Contact"', 'children:"İletişim"'],
   ['children:"Shader — Home"', 'children:"PIXELA — Ana Sayfa"'],
   ['children:"Book a Call Today"', 'children:"Proje Teklifi Alın"'],
+  ['text:"Book a Call Today"', 'text:"Proje Teklifi Alın"'],
+  ['message:"Scroll to About Us"', 'message:"Hakkımda bölümüne kaydır"'],
+  ['children:"The Management"', 'children:"Yönetim"'],
   ['children:"Previous project"', 'children:"Önceki proje"'],
   ['children:"Next project"', 'children:"Sonraki proje"'],
   ['children:"Back to projects"', 'children:"Projelere dön"'],
@@ -360,12 +475,47 @@ const JS_EXTRA = [
   ['children:"Project carousel"', 'children:"Proje karuseli"'],
   ['children:"View project"', 'children:"Projeyi görüntüle"'],
   ['children:"Visit site"', 'children:"Siteyi ziyaret et"'],
-  ['children:"HEIP"', 'children:"Lider Teknik"'],
-  ['children:"3D Visualisation"', 'children:"Kurumsal Site"'],
+  ['children:"3D Visualisation"', 'children:"3D Görselleştirme"'],
   ['children:"Visit us"', 'children:"Adres"'],
   ['children:"Social"', 'children:"Sosyal medya"'],
   ['children:"New business"', 'children:"Yeni projeler"'],
+  ['children:"Skip to content"', 'children:"İçeriğe geç"'],
+  ['children:"Accessibility Statement"', 'children:"Erişilebilirlik Bildirimi"'],
   ['children:"Good buy."', 'children:"İyi alışverişler!"'],
+  ['aria-label:"About Us"', 'aria-label:"Hakkımda"'],
+  ['aria-label:"Selected Work"', 'aria-label:"Projelerim"'],
+  ['aria-label:"Accessibility Statement navigation"', 'aria-label:"Erişilebilirlik Bildirimi navigasyonu"'],
+  ['aria-label:"Accessibility Statement"', 'aria-label:"Erişilebilirlik Bildirimi"'],
+  ['"aria-label":"About Us"', '"aria-label":"Hakkımda"'],
+  ['"aria-label":"Selected Work"', '"aria-label":"Projelerim"'],
+  ['"aria-label":"Accessibility Statement navigation"', '"aria-label":"Erişilebilirlik Bildirimi navigasyonu"'],
+  ['"aria-label":"Accessibility Statement"', '"aria-label":"Erişilebilirlik Bildirimi"'],
+  ['"aria-label":"Contact"', '"aria-label":"İletişim"'],
+  ['"aria-label":"Previous project"', '"aria-label":"Önceki proje"'],
+  ['"aria-label":"Next project"', '"aria-label":"Sonraki proje"'],
+  [
+    'A server error occurred. Reload to try again.',
+    'Sunucu hatası oluştu. Yeniden denemek için yenileyin.',
+  ],
+  [
+    "This page couldn't load",
+    'Bu sayfa yüklenemedi',
+  ],
+  ['Reload to try again, or go back.', 'Yeniden denemek için yenileyin veya geri dönün.'],
+  ['children:"Continue to next project"', 'children:"Sonraki projeye geç"'],
+  ['Continue to next project: ${', 'Sonraki projeye geç: ${'],
+  ['Continue to next project: ', 'Sonraki projeye geç: '],
+  ['Continue to next project:', 'Sonraki projeye geç:'],
+  ['Visit ${y?.title||"project"} website, opens in new tab', '${y?.title||"proje"} sitesini ziyaret et, yeni sekmede açılır'],
+  [' website, opens in new tab', ' sitesini ziyaret et, yeni sekmede açılır'],
+  ['opens in new tab', 'yeni sekmede açılır'],
+  ['"aria-label":"Main navigation"', '"aria-label":"Ana menü"'],
+  ['aria-label:"Main navigation"', 'aria-label:"Ana menü"'],
+  ['"aria-label":"Project details"', '"aria-label":"Proje detayları"'],
+  ['"aria-label":"Shader logo, go to home page"', '"aria-label":"PIXELA logosu, ana sayfaya git"'],
+  ['"aria-label":"Go back to projects overview"', '"aria-label":"Projelere dön"'],
+  ['children:"Next Project"', 'children:"Sonraki proje"'],
+  ['Send email to ', 'E-posta gönder: '],
   [
     'children:"Still Not Convinced We\'re Serious About Business?"',
     'children:"Hâlâ işimize ciddiyetle yaklaştığımıza inanmıyor musunuz?"',
@@ -394,15 +544,22 @@ const JS_EXTRA = [
     'aria-label:"WhatsApp ile iletişime geçin, yeni sekmede açılır"',
   ],
   ['text:"Visit site"', 'text:"Siteyi ziyaret et"'],
-  ['text:"HEIP"', 'text:"Lider Teknik"'],
-  ['aria-label:"Selected Work"', 'aria-label:"Projelerim"'],
-  ['aria-label:"About Us"', 'aria-label:"Hakkımda"'],
   ['aria-label:"Contact"', 'aria-label:"İletişim"'],
   ['aria-label:"Previous project"', 'aria-label:"Önceki proje"'],
   ['aria-label:"Next project"', 'aria-label:"Sonraki proje"'],
   ['View project: ', 'Projeyi görüntüle: '],
   ['View project: ${', 'Projeyi görüntüle: ${'],
   ['"name":"Portfolio"', '"name":"Projelerim"'],
+  ['children:"“Hello”"', 'children:"“Merhaba”"'],
+  ['children:"\\u201CHello\\u201D"', 'children:"\\u201CMerhaba\\u201D"'],
+  ['text:"Continue"', 'text:"Devam et"'],
+  ['children:"Continue"', 'children:"Devam et"'],
+  ['setProperty("text","Loading...")', 'setProperty("text","Yükleniyor...")'],
+  ['setProperty("text","Continue")', 'setProperty("text","Devam et")'],
+  ['street:"Laxholmstorget 3"', 'street:"Sakarya"'],
+  ['postalCode:"602 21"', 'postalCode:""'],
+  ['city:"Norrköping"', 'city:"Sakarya"'],
+  ['country:"Sweden",countryCode:"SE"', 'country:"Türkiye",countryCode:"TR"'],
 ];
 
 function buildJsPairs() {
@@ -526,7 +683,8 @@ function getDomTrPairs() {
     'This visualization was created for Händelö Eco-Industrial Park and shows how different factories and units exchange by-products, reducing waste and maximizing overall efficiency.',
     map.get(
       'This visualization was created for Händelö Eco-Industrial Park and shows how different factories and units exchange by-products, reducing waste and maximizing overall efficiency.'
-    ) || 'Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif.',
+    ) ||
+      'Bu görselleştirme Händelö Eko-Endüstri Parkı için hazırlandı; fabrikaların yan ürün alışverişini, atık azaltmayı ve genel verimliliği anlatıyor.',
   ]);
   out.sort((a, b) => b[0].length - a[0].length);
   return out;
@@ -623,15 +781,19 @@ function getBrowserTrJs() {
 let chunkPatchJs = null;
 function getChunkPatchJs() {
   if (!chunkPatchJs) {
-    /** Yalnizca URL yonlendirme — ph()/flight hook sayfayi bozuyordu (v80) */
+    /** URL rewrite — boot/yukleme ekranina dokunma (skip yamasi siyah ekran yapardi) */
     chunkPatchJs =
       "(function(){if(window.__pixelaChunkTr)return;window.__pixelaChunkTr=1;" +
       "var WP='" + WP_URL.replace(/'/g, "\\'") + "';" +
       "var GR=/\\/models\\/(shredder|computer)\\.glb/i;" +
-      "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=117';if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=117';if(/stream\\.mux\\.com/i.test(u)&&u.indexOf('LbdE02DF9Gx1iVtxU98nv6uOtEEmQkTSs00Uyqb6O0201Tw')!==-1)return'/videos/heip-lider-teknik.mp4?v=94';if(/\\/api\\/mux-image\\//i.test(u)&&u.indexOf('LbdE02DF9Gx1iVtxU98nv6uOtEEmQkTSs00Uyqb6O0201Tw')!==-1)return'/videos/heip-poster.jpg?v=94';if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
+      "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
+      "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=122';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=122';" +
+      "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +
-      'var f=window.fetch;if(f){var of=f;window.fetch=function(i,n){var u=typeof i==="string"?i:i&&i.url||"";var x=rw(u);if(x!==u)return of.call(this,x,n);return of.apply(this,arguments);};}' +
+      'var f=window.fetch;if(f){var of=f;window.fetch=function(i,n){var u=typeof i==="string"?i:(i&&i.url)||"";var x=rw(u);if(x===u)return of.apply(this,arguments);if(typeof i!=="string"&&typeof Request!=="undefined"&&i instanceof Request){return of.call(this,new Request(x,i),n);}return of.call(this,x,n);};}' +
       'var oo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){this.__pxu=rw(String(u));return oo.apply(this,[m,this.__pxu].concat([].slice.call(arguments,2)));};' +
       'var op=window.open;if(op){window.open=function(u){if(u&&/cal\\.com/i.test(String(u)))return op.call(this,WP,"_blank","noopener");return op.apply(this,arguments);};}' +
       '})();';

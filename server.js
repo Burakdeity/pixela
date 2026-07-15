@@ -19,6 +19,7 @@ const {
 } = require('./patch-videos');
 const { getBrand, getSeoTitle, getPublicConfig } = require('./site-config');
 const { scrubBrandReferences } = require('./brand-scrub');
+const { translateFlightBody, translateHtmlSafe } = require('./flight-translate');
 
 const ROOT = __dirname;
 const CACHE = path.join(ROOT, 'cache');
@@ -35,10 +36,12 @@ const LOCAL = {
   'pixela-logo-dark.svg': 'image/svg+xml; charset=utf-8',
   'pixela-logo-hover.svg': 'image/svg+xml; charset=utf-8',
   'pixela-logo-glb.svg': 'image/svg+xml; charset=utf-8',
+  'pixela-copyright.svg': 'image/svg+xml; charset=utf-8',
   'pixela-boot-screen.png': 'image/png',
   'pixela-boot-screen-mobile.png': 'image/png',
   'shredder-pixela.glb': 'model/gltf-binary',
   'computer-pixela.glb': 'model/gltf-binary',
+  'phones-pixela.glb': 'model/gltf-binary',
 };
 
 const LOGO_PROXY = {
@@ -108,23 +111,32 @@ function rscResponseHeaders(source) {
     'Cache-Control': 'no-store, no-cache, must-revalidate',
     Pragma: 'no-cache',
     Vary: 'rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch',
+    // Next 16 compares this response header with <html data-dpl-id>.
+    // Without it, a valid router.push is deliberately converted to a full page load.
+    'X-Nextjs-Deployment-Id': DEPLOYMENT_ID,
     'X-Pixela-Source': source,
     'X-Pixela-Ver': SCRIPT_VER,
   };
 }
 
 function prepareHomeRscBody(raw) {
-  let body = typeof raw === 'string' ? raw : raw.toString('utf8');
-  body = patchHeipFlight(body);
-  body = scrubBrandReferences(body, getPublicUrl());
-  return fixRscFlightLengths(body);
+  // CRLF temizle, sonra Flight-guvenli ceviri (T uzunluklari yeniden hesaplanir)
+  const body = typeof raw === 'string' ? raw : raw.toString('utf8');
+  const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (rscBodyCache.has('home')) return rscBodyCache.get('home');
+  const out = translateFlightBody(normalized);
+  rscBodyCache.set('home', out);
+  return out;
 }
 
 function prepareWorkRscBody(raw, slug) {
-  let body = typeof raw === 'string' ? raw : raw.toString('utf8');
-  if (slug === 'heip') body = patchHeipFlight(body);
-  body = scrubBrandReferences(body, getPublicUrl());
-  return fixRscFlightLengths(body);
+  const body = typeof raw === 'string' ? raw : raw.toString('utf8');
+  const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const key = 'work:' + slug;
+  if (rscBodyCache.has(key)) return rscBodyCache.get(key);
+  const out = translateFlightBody(normalized);
+  rscBodyCache.set(key, out);
+  return out;
 }
 
 function writeRawWorkRsc(slug, raw) {
@@ -146,17 +158,7 @@ async function fetchRemoteRsc(urlPath) {
 }
 
 async function serveHomeRsc(res) {
-  try {
-    const raw = await fetchRemoteRsc('/');
-    if (raw) {
-      res.writeHead(200, rscResponseHeaders('remote-home-rsc'));
-      res.end(prepareHomeRscBody(raw));
-      return true;
-    }
-  } catch (err) {
-    console.warn('  Home RSC remote:', err.message);
-  }
-
+  // Once yerel ham RSC (scrub yok) — 404/plain text enqueueModel yapar
   const candidates = [
     path.join(STATIC, 'rsc', 'home.txt'),
     path.join(CACHE, 'rsc-home.txt'),
@@ -166,6 +168,16 @@ async function serveHomeRsc(res) {
     res.writeHead(200, rscResponseHeaders('local-home-rsc'));
     res.end(prepareHomeRscBody(fs.readFileSync(p, 'utf8')));
     return true;
+  }
+  try {
+    const raw = await fetchRemoteRsc('/');
+    if (raw) {
+      res.writeHead(200, rscResponseHeaders('remote-home-rsc'));
+      res.end(prepareHomeRscBody(raw));
+      return true;
+    }
+  } catch (err) {
+    console.warn('  Home RSC remote:', err.message);
   }
   return false;
 }
@@ -194,11 +206,14 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '121';
+const SCRIPT_VER = '161';
 const REMOTE_ORIGIN = 'https://www.shader.se';
+const DEPLOYMENT_ID = 'dpl_7zBfSoUTJP474MZeo1QBxkHKryUu';
 
-/** false = orijinal proje karuseli. HEIP -> Lider Teknik cevirisi ayri yapilir. */
+/** false = orijinal Shader proje karuseli (site-config.projects kullanilmaz). */
 const ENABLE_CUSTOM_PROJECTS = false;
+/** false = HEIP / mux medyalari orijinal kalsin (Lider Teknik yamasi yok). */
+const REPLACE_HEIP_WITH_LIDER = false;
 
 const PROJECTS_INIT_PATCH = {
   from:
@@ -206,7 +221,10 @@ const PROJECTS_INIT_PATCH = {
   to: '{let r=eC.useProjectsStore.getState().prismicProjects.get();if(r.length>0){if(e?.type==="project"&&e.project){let t=e.project,i=eC.useProjectsStore.getState().selectedProjectIndex.get(),n=r.findIndex(e=>e?.uid===t.uid);i%r.length!==n&&eC.useProjectsStore.getState().selectedProjectIndex.set(n)}ei.set(!0)}}',
 };
 const CHUNK_CACHE = path.join(CACHE, 'chunks');
+const TR_CHUNK_DIR = path.join(CACHE, `chunks-tr-v${SCRIPT_VER}`);
 const CACHE_BUST = `px=${SCRIPT_VER}`;
+const htmlPageCache = new Map(); // pathname -> prepared html string
+const rscBodyCache = new Map(); // key -> translated rsc string
 
 /** Next.js client navigation — RSC flight; HTML patch bunlara uygulanmamali */
 function isRscRequest(req) {
@@ -230,17 +248,8 @@ function patchBootScreenUrls(text) {
 }
 
 function patchContent(body) {
-  let text = body.toString('utf8');
-  if (text.includes(PROJECTS_INIT_PATCH.from)) {
-    text = text.split(PROJECTS_INIT_PATCH.from).join(PROJECTS_INIT_PATCH.to);
-  }
-  text = text.replace(/\/\/textures\/boot_screen/g, '/textures/boot_screen');
-  text = patchBootScreenUrls(text);
-  if (text.includes(LOADING_BLEND_PATCH.from)) {
-    text = text.split(LOADING_BLEND_PATCH.from).join(LOADING_BLEND_PATCH.to);
-  }
-  let out = patchVideoLoader(Buffer.from(text, 'utf8'));
-  return applyTranslationsBuffer(out, 'js');
+  // Chunk'lara runtime yama uygulama — LOADING_BLEND / JS TR Flight'i bozuyor ("This page couldn't load")
+  return Buffer.isBuffer(body) ? body : Buffer.from(body);
 }
 
 function htmlNoStoreHeaders() {
@@ -249,6 +258,7 @@ function htmlNoStoreHeaders() {
     'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
     Pragma: 'no-cache',
     Expires: '0',
+    // Clear-Site-Data yok — chunk yuklemesi sirasinda cache temizligi Flight'i kirar
     'X-Pixela-Ver': SCRIPT_VER,
   };
 }
@@ -290,7 +300,7 @@ function patchSeo(html) {
       `<link rel="alternate" hreflang="tr" href="${base}/" />\n<meta http-equiv="content-language" content="tr" />\n</head>`
     );
   }
-  return scrubBrandReferences(out, base);
+  return out;
 }
 
 function bustOneUrl(url) {
@@ -298,60 +308,75 @@ function bustOneUrl(url) {
   return url.includes('?') ? `${url}&${CACHE_BUST}` : `${url}?${CACHE_BUST}`;
 }
 
-/** Sadece HTML attribute'larindaki chunk URL'lerine cache-bust ekle (script icindeki flight verisine dokunma). */
+/**
+ * Edge/Chromium eski yamali chunk'lari ayni URL'den cache'ler.
+ * Sadece HTML attribute src/href'e px= ekle — inline __next_f script govdesine DOKUNMA.
+ */
 function bustAssetUrls(html) {
-  const attrRe = /(\s(?:src|href)=")(\/_next\/static\/chunks\/[^"]+\.(?:js|css)[^"]*)(")/gi;
+  const attrRe = /(\s(?:src|href)=")(\/_next\/static\/[^"]+)(")/gi;
   const blocks = html.split(/(<script\b[\s\S]*?<\/script>)/gi);
   return blocks
     .map((block) => {
-      if (/^<script\b/i.test(block)) return block;
+      if (/^<script\b/i.test(block)) {
+        if (/\bsrc\s*=/i.test(block)) {
+          return block.replace(
+            /(<script\b[^>]*?\bsrc=")(\/_next\/static\/[^"]+)(")/i,
+            (_, open, url, close) => open + bustOneUrl(url) + close
+          );
+        }
+        return block;
+      }
       return block.replace(attrRe, (_, open, url, close) => open + bustOneUrl(url) + close);
     })
     .join('');
 }
 
 function stripBrokenPreloads(html) {
-  return html.replace(/<link\b[^>]*\brel=["']preload["'][^>]*\bhref=["']\s*["'][^>]*\/?>/gi, '');
+  return html
+    .replace(/<link\b[^>]*\brel=["']preload["'][^>]*\bhref=["']\s*["'][^>]*\/?>/gi, '')
+    .replace(/<link\b[^>]*\bhref=["']\s*["'][^>]*\brel=["']preload["'][^>]*\/?>/gi, '');
 }
 
 function injectHead(html) {
-  let out = ENABLE_CUSTOM_PROJECTS ? applyProjectOverrides(html) : html;
-  out = patchHeipHtml(out);
-  out = applyTranslations(out);
-  out = patchSeo(out);
+  // Flight govdesine dokunma; sadece attribute cache-bust + bos preload temizligi
+  let out = stripBrokenPreloads(html);
+  // Vercel data-dpl-id SSR HTML'de var, React tree'de yok → hydration #418 (HTML)
+  out = out.replace(/<html([^>]*)>/i, (_, attrs) => {
+    return '<html' + attrs.replace(/\s*data-dpl-id="[^"]*"/i, '') + '>';
+  });
   out = bustAssetUrls(out);
-  out = stripBrokenPreloads(out);
-  out = out.replace(/lang="en"/, 'lang="tr"');
-  out = out.replace(/<title>[^<]*<\/title>/, `<title>${getSeoTitle()}</title>`);
-  out = out.replace(
-    /<script>\(self\.__next_s=self\.__next_s\|\|\[\]\)\.push\(\["https:\/\/analytics\.shader\.build[\s\S]*?<\/script>\s*/gi,
-    ''
-  );
-  out = out.replace(
-    /<link rel="stylesheet" href="\/_next\/static\/chunks\/[^"]+\.css[^"]*"/,
-    `<link rel="stylesheet" href="/style.css?v=${SCRIPT_VER}"`
-  );
-  if (!out.includes('href="/style.css"') && !out.includes('href="style.css"')) {
-    out = out.replace(
-      '</head>',
-      `<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />\n<meta http-equiv="Pragma" content="no-cache" />\n<link rel="stylesheet" href="/style.css?v=${SCRIPT_VER}"></head>`
-    );
+  return out;
+}
+
+/** PIXELA config + erken hook'u <head>'e, script.js'i </body> onune ekler */
+function injectPixelaScripts(html) {
+  let out = html;
+  if (!out.includes('id="pixela-config"')) {
+    out = out.replace(/<head([^>]*)>/i, (m) => m + buildConfigScript() + buildEarlyHook());
   }
-  const earlyHook = buildEarlyHook();
-  const configScript = buildConfigScript();
-  if (!out.includes('id="pixela-early"')) {
-    out = out.replace(/<head([^>]*)>/i, `<head$1>${earlyHook}`);
+  if (!/src="\/script\.js/.test(out)) {
+    out = out.replace(/<\/body>/i, `<script src="/script.js?${CACHE_BUST}" defer></script></body>`);
   }
-  out = out.replace(/<script id="bd-splash-boot"[\s\S]*?<\/script>\s*/g, '');
-  out = out.replace(/<script id="pixela-script"[^>]*>\s*<\/script>\s*/g, '');
-  out = out.replace(/<script id="ship-script"[^>]*>\s*<\/script>\s*/g, '');
-  out = out.replace(/<script id="burakdeity-script"[^>]*>\s*<\/script>\s*/g, '');
-  out = out.replace(/<div id="bd-splash-layer"[\s\S]*?<\/div>\s*/g, '');
-  out = out.replace(
-    '</body>',
-    `${configScript}<script id="pixela-script" src="/script.js?v=${SCRIPT_VER}" defer></script></body>`
-  );
-  return scrubBrandReferences(out, getPublicUrl());
+  return out;
+}
+
+/** HTML sayfa govdesi: Flight-guvenli Turkce ceviri + cache-bust + PIXELA scriptleri */
+function preparePageHtml(raw, cacheKey) {
+  if (cacheKey && htmlPageCache.has(cacheKey)) return htmlPageCache.get(cacheKey);
+  const out = injectPixelaScripts(injectHead(translateHtmlSafe(raw)));
+  if (cacheKey) htmlPageCache.set(cacheKey, out);
+  return out;
+}
+
+/** scrubBrandReferences'i Flight push script'lerine uygulamadan calistir */
+function scrubHtmlOutsideFlight(html, baseUrl) {
+  const parts = html.split(/(<script\b[\s\S]*?<\/script>)/gi);
+  return parts
+    .map((part) => {
+      if (/^<script\b/i.test(part) && /self\.__next_f\.push/.test(part)) return part;
+      return scrubBrandReferences(part, baseUrl);
+    })
+    .join('');
 }
 
 function workSlug(pathname) {
@@ -378,6 +403,8 @@ function serveWorkRscFallback(slug, res) {
 }
 
 async function serveWorkRscLive(slug, res) {
+  // Yerel RSC varsa onu kullan — remote ile karisinca enqueueModel olusur
+  if (serveWorkRscFallback(slug, res)) return true;
   try {
     const raw = await fetchRemoteRsc(`/work/${encodeURIComponent(slug)}`);
     if (raw) {
@@ -388,7 +415,7 @@ async function serveWorkRscLive(slug, res) {
   } catch (err) {
     console.warn('  Work RSC remote:', slug, err.message);
   }
-  return serveWorkRscFallback(slug, res);
+  return false;
 }
 
 async function serveWork(pathname, query, req, res) {
@@ -404,7 +431,8 @@ async function serveWork(pathname, query, req, res) {
 
   const localWork = path.join(STATIC, 'work', `${slug}.html`);
   if (fs.existsSync(localWork)) {
-    const html = injectHead(fs.readFileSync(localWork, 'utf8'));
+    // Ceviri translateHtmlSafe ile — Flight T uzunluklari yeniden hesaplanir
+    const html = preparePageHtml(fs.readFileSync(localWork, 'utf8'), `work:${slug}`);
     res.writeHead(200, htmlNoStoreHeaders());
     res.end(html);
     return true;
@@ -418,7 +446,7 @@ async function serveWork(pathname, query, req, res) {
 function serveHome(res) {
   const cached = loadCache();
   if (cached) {
-    const html = injectHead(cached);
+    const html = preparePageHtml(cached, 'home');
     res.writeHead(200, htmlNoStoreHeaders());
     res.end(html);
     return true;
@@ -489,6 +517,12 @@ async function fetchAndServePatchedChunk(pathname, res) {
       '*/*'
     );
     if (remote.status !== 200 || !remote.body?.length) return false;
+    // Kalici static'e de yaz — sonraki isteklerde 404 olmasin
+    try {
+      const dest = staticFilePath(pathname.split('?')[0]);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, remote.body);
+    } catch (_) {}
     writePatchedChunk(pathname, patchBrandJs(remote.body), res, 'remote-patched');
     return true;
   } catch (err) {
@@ -498,7 +532,8 @@ async function fetchAndServePatchedChunk(pathname, res) {
 }
 
 function loadCache() {
-  const candidates = [path.join(CACHE, 'page.html'), path.join(STATIC, 'page.html')];
+  // static/ kaynak; cache/ eski yamalari tutabiliyor
+  const candidates = [path.join(STATIC, 'page.html'), path.join(CACHE, 'page.html')];
   for (const p of candidates) {
     try {
       if (fs.existsSync(p)) return fs.readFileSync(p, 'utf8');
@@ -684,6 +719,21 @@ const server = http.createServer(async (req, res) => {
     return res.end('ok v' + SCRIPT_VER);
   }
 
+  // Site ikonlari — 404 onlenir, PIXELA logosu kullanilir
+  if (pathname === '/favicon.ico' || pathname === '/apple-icon.png') {
+    const icon = path.join(ROOT, '_icon-crop-110.png');
+    if (fs.existsSync(icon)) {
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400',
+      });
+      return fs.createReadStream(icon).pipe(res);
+    }
+  }
+  if (pathname === '/icon.svg') {
+    return sendLocal('pixela-logo-dark.svg', res);
+  }
+
   if (pathname === '/pixela-chunks-tr.js') {
     res.writeHead(200, {
       'Content-Type': 'application/javascript; charset=utf-8',
@@ -727,7 +777,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/textures/copyright_footer.png') {
-    return sendLocal('pixela-logo-dark.svg', res);
+    return sendLocal('pixela-logo-hover.svg', res);
   }
 
   if (pathname === '/textures/boot_screen.png') {
@@ -770,6 +820,22 @@ const server = http.createServer(async (req, res) => {
       if (err) {
         res.writeHead(404);
         return res.end('GLB yok');
+      }
+      res.end(data);
+    });
+  }
+
+  if (pathname === '/models/phones.glb' || pathname.startsWith('/models/phones.glb')) {
+    res.writeHead(200, {
+      'Content-Type': 'model/gltf-binary',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      Pragma: 'no-cache',
+      'X-Pixela-Ver': SCRIPT_VER,
+    });
+    return fs.readFile(path.join(ROOT, 'phones-pixela.glb'), (err, data) => {
+      if (err) {
+        res.writeHead(404);
+        return res.end('phones GLB yok');
       }
       res.end(data);
     });
@@ -848,6 +914,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/' || pathname === '/index.html') {
+    // ?v= / ?px= gibi cache-bust query Flight q ile uyusmaz -> enqueueModel
+    if (
+      !isRscRequest(req) &&
+      query &&
+      /[?&](v|px|fixed|sync|t|check|e|min|zero|nocache|err)=/i.test(query)
+    ) {
+      res.writeHead(302, { Location: '/', 'Cache-Control': 'no-store' });
+      return res.end();
+    }
     if (isRscRequest(req)) {
       if (await serveHomeRsc(res)) return;
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -863,6 +938,26 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (/\/_next\/static\/chunks\/.*\.js$/i.test(pathname)) {
+    // Onceden cevirilmis chunk varsa onu sun (hot-path ceviri sunucuyu kilitler)
+    const name = path.basename(pathname.split('?')[0]);
+    const trFile = path.join(TR_CHUNK_DIR, name);
+    if (fs.existsSync(trFile)) {
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        Pragma: 'no-cache',
+        Expires: '0',
+        'X-Pixela-Chunk': 'tr-cache',
+        'X-Pixela-Ver': SCRIPT_VER,
+      });
+      return fs.createReadStream(trFile).pipe(res);
+    }
+    if (serveStaticFile(pathname, res, {
+      'X-Pixela-Chunk': 'static-raw',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      Pragma: 'no-cache',
+      Expires: '0',
+    })) return;
     if (servePatchedChunk(pathname, res)) return;
     if (await fetchAndServePatchedChunk(pathname, res)) return;
   }
@@ -877,6 +972,30 @@ const server = http.createServer(async (req, res) => {
 function openBrowser() {
   if (getCloudBaseUrl() || process.platform !== 'win32') return;
   exec(`cmd /c start "" "${SITE_URL}"`);
+}
+
+function prewarmTranslatedPages() {
+  const t0 = Date.now();
+  try {
+    const home = loadCache();
+    if (home) preparePageHtml(home, 'home');
+    const homeRsc = path.join(STATIC, 'rsc', 'home.txt');
+    if (fs.existsSync(homeRsc)) prepareHomeRscBody(fs.readFileSync(homeRsc, 'utf8'));
+    const workDir = path.join(STATIC, 'work');
+    const workRscDir = path.join(STATIC, 'rsc', 'work');
+    if (fs.existsSync(workDir)) {
+      for (const f of fs.readdirSync(workDir)) {
+        if (!f.endsWith('.html')) continue;
+        const slug = f.replace(/\.html$/, '');
+        preparePageHtml(fs.readFileSync(path.join(workDir, f), 'utf8'), `work:${slug}`);
+        const rscFile = path.join(workRscDir, `${slug}.txt`);
+        if (fs.existsSync(rscFile)) prepareWorkRscBody(fs.readFileSync(rscFile, 'utf8'), slug);
+      }
+    }
+    console.log(`  Ceviri on-isitma: ${Date.now() - t0}ms (${htmlPageCache.size} html, ${rscBodyCache.size} rsc)`);
+  } catch (err) {
+    console.warn('  On-isitma hatasi:', err.message);
+  }
 }
 
 function onListen() {
@@ -895,6 +1014,7 @@ function onListen() {
   if (cached) refreshCss(cached).catch(() => {});
   const hasStatic = fs.existsSync(STATIC);
   console.log(hasStatic ? '  Yerel varliklar hazir.' : '  UYARI: static/ klasoru bulunamadi.');
+  setImmediate(prewarmTranslatedPages);
 }
 
 function tryListen(index) {
@@ -932,21 +1052,8 @@ function tryListen(index) {
 }
 
 function killOtherServers() {
-  if (process.platform !== 'win32') return;
-  const { execSync } = require('child_process');
-  for (const port of PORTS) {
-    try {
-      const out = execSync(`netstat -ano | findstr ":${port} " | findstr LISTENING`, { encoding: 'utf8' });
-      for (const line of out.split('\n')) {
-        const pid = parseInt(String(line).trim().split(/\s+/).pop(), 10);
-        if (pid && pid !== process.pid) {
-          try {
-            execSync(`taskkill /PID ${pid} /F`);
-          } catch (_) {}
-        }
-      }
-    } catch (_) {}
-  }
+  // Dev reboot: netstat/taskkill Windows'ta takilabiliyor; manuel port kontrolu yeterli
+  return;
 }
 
 killOtherServers();

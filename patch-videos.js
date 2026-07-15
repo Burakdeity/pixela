@@ -1,8 +1,11 @@
-/** Proje onizleme videolarini yerel MP4 ile degistir */
+/** Proje onizleme videolarini yerel MP4 / poster ile degistir — uzak Mux yok */
+const { getProjects } = require('./site-config');
+
 const HEIP_MUX = 'LbdE02DF9Gx1iVtxU98nv6uOtEEmQkTSs00Uyqb6O0201Tw';
-const HEIP_VIDEO_VER = '94';
+const HEIP_VIDEO_VER = '122';
 const HEIP_VIDEO = `/videos/heip-lider-teknik.mp4?v=${HEIP_VIDEO_VER}`;
 const HEIP_POSTER = `/videos/heip-poster.jpg?v=${HEIP_VIDEO_VER}`;
+const FALLBACK_POSTER = '/textures/thumb_fallback.png';
 const HEIP_DESC =
   'Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif.';
 const HEIP_DESC_OLD_TR =
@@ -17,55 +20,105 @@ const HEIP_EXTRA_MUX = [
   '005QKAjn5uzXCECW6eQSaNXX01LLEIBg6rT3P6nySuJL4',
 ];
 
-const VIDEO_OVERRIDES = {
-  [HEIP_MUX]: HEIP_VIDEO,
-};
-
-/** Ow() icindeki mux HLS sablonunu heip icin yerel mp4'e yonlendir */
+/** Ow() icindeki mux HLS sablonunu yerel mp4'e yonlendir */
 const MUX_SRC_TEMPLATE =
   '`https://stream.mux.com/${a}.m3u8?max_resolution=${e}`';
 
 /** getMuxImageUrl() — film seridi onizleme gorseli */
 const MUX_IMG_TEMPLATE = '`/api/mux-image/${e}/${s.join("-")}`';
 
-function buildMuxSrcPatch(muxId, localPath) {
-  return `(a==="${muxId}"?"${localPath}":${MUX_SRC_TEMPLATE})`;
+function normalizeMediaPath(p, ver = HEIP_VIDEO_VER) {
+  if (!p) return null;
+  const base = String(p).split('?')[0];
+  return `${base}?v=${ver}`;
 }
 
-function buildMuxImgPatch(muxId, localPath) {
-  return `(e==="${muxId}"?"${localPath}":${MUX_IMG_TEMPLATE})`;
+/** Config + bilinen HEIP mux — tum stream.mux / mux-image istekleri yerelleşir */
+function buildVideoOverrides() {
+  const overrides = {
+    [HEIP_MUX]: HEIP_VIDEO,
+  };
+  try {
+    const projects = getProjects() || [];
+    for (const p of projects) {
+      if (p.video) {
+        if (p.routeUid === 'heip' || p.uid === 'lider-teknik') {
+          overrides[HEIP_MUX] = normalizeMediaPath(p.video) || HEIP_VIDEO;
+        }
+      }
+    }
+  } catch (_) {}
+  return overrides;
+}
+
+function buildPosterOverrides() {
+  const posters = {
+    [HEIP_MUX]: HEIP_POSTER,
+  };
+  try {
+    const projects = getProjects() || [];
+    for (const p of projects) {
+      if ((p.routeUid === 'heip' || p.uid === 'lider-teknik') && p.poster) {
+        posters[HEIP_MUX] = normalizeMediaPath(p.poster) || HEIP_POSTER;
+      }
+    }
+  } catch (_) {}
+  return posters;
+}
+
+const VIDEO_OVERRIDES = buildVideoOverrides();
+const POSTER_OVERRIDES = buildPosterOverrides();
+
+function buildMuxSrcPatch() {
+  // Offline: tum mux stream URL'leri yerel videoya
+  return `"${HEIP_VIDEO}"`;
+}
+
+function buildMuxImgPatch() {
+  return `(e==="${HEIP_MUX}"?"${HEIP_POSTER}":"${FALLBACK_POSTER}")`;
+}
+
+/** Onceki yamalar + orijinal sablonu tek temiz ifadeye indir. */
+function normalizeMuxSrcExpr(text) {
+  let out = text;
+  // Tum stream.mux sablon literal'leri (${a} vb.)
+  out = out.replace(
+    /`https:\/\/stream\.mux\.com\/\$\{[^}]+\}[^`]*`/g,
+    buildMuxSrcPatch()
+  );
+  // Sabit https://stream.mux.com/ID.m3u8 — boot/handshake/showreel
+  out = out.replace(
+    /https:\/\/stream\.mux\.com\/[A-Za-z0-9]+\.m3u8/g,
+    HEIP_VIDEO.split('?')[0]
+  );
+  // Ow({src:(a==="HEIP"?...:... )}) — basit veya ic ice ternary
+  const ternary = new RegExp(
+    String.raw`\(a==="${HEIP_MUX}"\?"[^"]*":(?:\([^)]*\)|"[^"]*")\)`,
+    'g'
+  );
+  out = out.replace(ternary, buildMuxSrcPatch());
+  return out;
+}
+
+function normalizeMuxImgExpr(text) {
+  let out = text;
+  if (out.includes(MUX_IMG_TEMPLATE)) {
+    out = out.split(MUX_IMG_TEMPLATE).join(buildMuxImgPatch());
+  }
+  out = out.replace(
+    /`\/api\/mux-image\/\$\{e\}\/\$\{s\.join\("-"\)\}`/g,
+    buildMuxImgPatch()
+  );
+  return out;
 }
 
 function patchVideoLoader(body) {
   let text = body.toString('utf8');
-  let changed = false;
-
-  if (text.includes(MUX_SRC_TEMPLATE)) {
-    for (const [muxId, localPath] of Object.entries(VIDEO_OVERRIDES)) {
-      const patch = buildMuxSrcPatch(muxId, localPath);
-      if (!text.includes(`a==="${muxId}"?"${localPath}"`)) {
-        text = text.replace(MUX_SRC_TEMPLATE, patch);
-        changed = true;
-      }
-    }
-  }
-
-  if (text.includes(MUX_IMG_TEMPLATE)) {
-    for (const [muxId, localPath] of Object.entries(VIDEO_OVERRIDES)) {
-      const poster = HEIP_POSTER;
-      const patch = buildMuxImgPatch(muxId, poster);
-      if (!text.includes(`e==="${muxId}"?"${poster}"`)) {
-        text = text.replace(MUX_IMG_TEMPLATE, patch);
-        changed = true;
-      }
-    }
-  }
-
+  const before = text;
+  text = normalizeMuxSrcExpr(text);
+  text = normalizeMuxImgExpr(text);
   text = patchHeipFilmPlayback(text);
-
-  return changed || text !== body.toString('utf8')
-    ? Buffer.from(text, 'utf8')
-    : body;
+  return text !== before ? Buffer.from(text, 'utf8') : body;
 }
 
 /** Gb carousel: HEIP slotunda poster yerine dogrudan video oynat */
@@ -113,7 +166,6 @@ function buildHeipEntry({ collab, bright, contrast }) {
   );
 }
 
-/** RSC flight icindeki duz JSON proje blogu */
 function buildHeipEntryJson() {
   return (
     `{"uid":"heip","url":"/work/heip","title":"Lider Teknik","subtitle":"Kurumsal Site",` +
@@ -193,7 +245,6 @@ function patchHeipFlight(html) {
   );
   out = out.replace(/Work: HEIP \| Shader Development Studio/g, 'Lider Teknik | PIXELA — Yazılım & Web');
 
-  // HEIP marka kalintilari (uid /work/heip slug korunur)
   out = out.replace(/\\"title\\":\\"HEIP\\"/g, '\\"title\\":\\"Lider Teknik\\"');
   out = out.replace(/"title":"HEIP"/g, '"title":"Lider Teknik"');
   out = out.replace(/\\"name\\":\\"HEIP\\"/g, '\\"name\\":\\"Lider Teknik\\"');
@@ -316,7 +367,6 @@ function isFlightScriptBlock(block) {
   return /^<script\b/i.test(block) && /self\.__next_f\.push/.test(block);
 }
 
-/** HTML icindeki __next_f flight payload'larina patchHeipRsc uygula (T uzunluk on eki) */
 function patchFlightScriptBlock(block) {
   return block.replace(
     /self\.__next_f\.push\(\[1,("(?:\\.|[^"\\])*")\]\)/g,
@@ -329,12 +379,12 @@ function patchFlightScriptBlock(block) {
       }
       if (typeof decoded !== 'string') return full;
       const patched = patchHeipRsc(decoded);
-      return patched === decoded ? full : `self.__next_f.push([1,${JSON.stringify(patched)}])`;
+      // Her zaman yeniden encode — proje yamasi T uzunluklarini bozabilir
+      return `self.__next_f.push([1,${JSON.stringify(patched)}])`;
     }
   );
 }
 
-/** HTML: flight script'ler ayri, geri kalan patchHeipFlight */
 function patchHeipHtml(html) {
   if (!html || typeof html !== 'string') return html;
   const blocks = html.split(/(<script\b[\s\S]*?<\/script>)/gi);
@@ -354,7 +404,17 @@ function isHeipMuxImage(pathname) {
   return pathname.startsWith('/api/mux-image/') && pathname.includes(HEIP_MUX);
 }
 
-/** Tarayici: flight + RSC icinde HEIP -> Lider Teknik (onbellek / client nav) */
+/** Herhangi bir mux-image istegini yerel postere map et */
+function resolveLocalMuxPoster(pathname) {
+  if (!pathname.startsWith('/api/mux-image/')) return null;
+  if (pathname.includes(HEIP_MUX)) return pathJoinVideos('heip-poster.jpg');
+  return null; // server fallback thumb kullanir
+}
+
+function pathJoinVideos(name) {
+  return require('path').join(__dirname, 'videos', name);
+}
+
 function getHeipClientPatchJs() {
   const desc = HEIP_DESC.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   const descOld = HEIP_DESC_OLD_EN.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -390,10 +450,13 @@ module.exports = {
   patchHeipHtml,
   getVideoRewriteRules,
   isHeipMuxImage,
+  resolveLocalMuxPoster,
   HEIP_MUX,
   HEIP_VIDEO,
   HEIP_POSTER,
+  FALLBACK_POSTER,
   HEIP_DESC,
   VIDEO_OVERRIDES,
+  POSTER_OVERRIDES,
   getHeipClientPatchJs,
 };

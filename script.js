@@ -6,7 +6,7 @@
   const HOVER = '/pixela-logo-hover.svg';
   const GLB_LOGO = '/pixela-logo-glb.svg';
   const LOGO_RE = /\/_next\/static\/media\/logo(_dark)?\.[^"']+\.svg|copyright_footer\.png/i;
-  const GLB_RE = /\/models\/(shredder|computer)\.glb/i;
+  const GLB_RE = /\/models\/(shredder|computer|phones)\.glb/i;
   const LIDER_MUX = 'LbdE02DF9Gx1iVtxU98nv6uOtEEmQkTSs00Uyqb6O0201Tw';
   const liderProject = (CFG.projects || []).find((p) => p.uid === 'lider-teknik') || {};
   const LIDER_VIDEO = liderProject.video || '/videos/heip-lider-teknik.mp4?v=95';
@@ -20,42 +20,43 @@
     'Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi.';
   const COPY = CFG.copy || {};
   const DOM_TR = [
-    ['HEIP', 'Lider Teknik'],
-    ['3D Visualisation', 'Kurumsal Site'],
     ['Visit site', 'Siteyi ziyaret et'],
     ['Selected Work', 'Projelerim'],
     ['About Us', 'Hakkımda'],
-    ['Book a call', COPY.ctaButton || 'İletişime Geçin'],
-    ['Book a Call Today', COPY.ctaHeadline || 'Proje Teklifi Alın'],
+    ['Book a call', COPY.ctaButton || 'WhatsApp’tan Yazın'],
+    ['Book a Call Today', COPY.ctaHeadline || 'Projenizi Konuşalım'],
     ['Contact', 'İletişim'],
     ['Home', 'Ana Sayfa'],
     ['Visit us', 'Adres'],
     ['Social', 'Sosyal medya'],
     ['New business', 'Yeni projeler'],
     ['Good buy.', 'İyi alışverişler!'],
+    ['“Hello”', '“Merhaba”'],
+    ['Loading...', 'Yükleniyor...'],
+    ['Laxholmstorget 3', 'Sakarya'],
+    ['602 21 Sakarya', 'Sakarya'],
+    ['602 21 Norrköping', 'Sakarya'],
+    ['Norrköping, Sweden', 'Sakarya, Türkiye'],
+    ['Norrköping, Türkiye', 'Sakarya, Türkiye'],
     [
       "Still Not Convinced We're Serious About Business?",
-      'Hâlâ işimize ciddiyetle yaklaştığımıza inanmıyor musunuz?',
+      'Hâlâ ikna olmadınız mı?',
     ],
-    ["We've got one last trick up our sleeve.", 'Cebimizde son bir sürpriz daha var.'],
+    ["We've got one last trick up our sleeve.", 'Bir sürpriz daha var.'],
     [
       "Had Enough Reading? Let's Shred This Thing.",
-      'Okumaktan sıkıldınız mı? Projelere geçelim.',
+      'Yeterince okuduk — projelere geçelim.',
     ],
-    ['A High Tech Business Solutions Company', 'Yazılım ve Kurumsal Web Çözümleri'],
+    ['A High Tech Business Solutions Company', 'Yazılım ve Kurumsal Web'],
     ['Check Out This Golden Tie', 'Şu Altın Kravata Bir Bakın'],
     [
       'You made it this far. You deserve a tie-break.',
-      'Buraya kadar geldiniz — kravat molası hak ettiniz.',
+      'Buraya kadar geldiniz — kısa bir mola.',
     ],
     ['View project', 'Projeyi görüntüle'],
     ['Back to projects', 'Projelere dön'],
     ['Previous project', 'Önceki proje'],
     ['Next project', 'Sonraki proje'],
-    [
-      'This visualization was created for Händelö Eco-Industrial Park and shows how different factories and units exchange by-products, reducing waste and maximizing overall efficiency.',
-      LIDER_DESC,
-    ],
   ];
 
   /** beige-logo dokusunda dikey logo alani (1024 atlas) */
@@ -66,19 +67,21 @@
 
   function rewriteUrl(src) {
     if (!src || typeof src !== 'string') return src;
-    if (/heip-vis\.vercel\.app/i.test(src)) return LIDER_SITE;
     if (/cal\.com/i.test(src)) return WP_URL;
-    if (src.includes(LIDER_MUX)) {
-      if (/stream\.mux\.com/i.test(src)) return LIDER_VIDEO;
-      if (/\/api\/mux-image\//i.test(src)) return LIDER_POSTER;
-      return LIDER_VIDEO;
+    if (/shader\.se/i.test(src)) {
+      try {
+        const u = new URL(src, location.origin);
+        return u.pathname + u.search;
+      } catch (_) {
+        return '/';
+      }
     }
     if (GLB_RE.test(src)) {
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
-    if (/copyright_footer\.png/i.test(src)) return DARK;
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=118';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=118';
+    if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=161';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=161';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -115,10 +118,12 @@
       window.fetch = function (input, init) {
         const url = typeof input === 'string' ? input : input?.url || '';
         const next = rewriteUrl(url);
-        if (next !== url) {
-          return origFetch.call(this, next, init);
+        if (next === url) return origFetch.apply(this, arguments);
+        // Request header'larini koru (RSC:1 vb.) — kaybolursa enqueueModel olusur
+        if (typeof input !== 'string' && typeof Request !== 'undefined' && input instanceof Request) {
+          return origFetch.call(this, new Request(next, input), init);
         }
-        return origFetch.apply(this, arguments);
+        return origFetch.call(this, next, init);
       };
     }
 
@@ -142,18 +147,17 @@
   }
 
   function patchLiderLabels() {
-    document.querySelectorAll('button[aria-label], a[aria-label]').forEach((el) => {
-      const label = el.getAttribute('aria-label') || '';
-      if (label.includes('HEIP')) {
-        el.setAttribute(
-          'aria-label',
-          label.replace(/HEIP/g, 'Lider Teknik').replace(/3D Visualisation/gi, 'Kurumsal Site')
-        );
-      }
-    });
+    /* Shader orijinal proje isimleri — HEIP rename yok */
   }
 
   function keepSeoTitle() {
+    // Proje sayfalarinda orijinal title'i koru; sadece ana sayfada SEO title zorla
+    if (/^\/work\//.test(location.pathname)) {
+      if (/\bShader\b/i.test(document.title)) {
+        document.title = document.title.replace(/\bShader\b/gi, BRAND);
+      }
+      return;
+    }
     const want = CFG.seo?.title || BRAND + ' — ' + (CFG.brand?.tagline || 'Yazılım & Web');
     if (document.title !== want) document.title = want;
   }
@@ -174,11 +178,7 @@
   }
 
   function patchLiderLinks() {
-    document.querySelectorAll('a[href*="heip-vis"]').forEach((a) => {
-      a.href = LIDER_SITE;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-    });
+    /* Shader orijinal proje linkleri korunur */
   }
 
   function patchDomTurkish() {
@@ -208,6 +208,7 @@
 
   function eachScene(fn) {
     document.querySelectorAll('canvas').forEach((canvas) => {
+      if (!canvas) return;
       for (const get of [
         () => canvas.__r3f?.getState?.()?.scene,
         () => canvas.__r3f?.store?.getState?.()?.scene,
@@ -235,10 +236,89 @@
     setInterval(keepSeoTitle, 2000);
     [3000, 8000, 15000].forEach((ms) => setTimeout(() => { patchDomTurkish(); patchLiderLabels(); }, ms));
     document.documentElement.lang = 'tr';
-    document.title = document.title.replace(/\bShader\b/gi, BRAND);
-    document.title = document.title.replace(/PIXELA Development Studio/i, BRAND + ' — ' + (CFG.brand?.tagline || 'Yazılım & Web'));
-    document.title = document.title.replace(/PIXELA Geliştirme Stüdyosu/i, BRAND + ' — ' + (CFG.brand?.tagline || 'Yazılım & Web'));
-    if (CFG.seo?.title) document.title = CFG.seo.title;
+    if (!/^\/work\//.test(location.pathname)) {
+      document.title = document.title.replace(/\bShader\b/gi, BRAND);
+      document.title = document.title.replace(/PIXELA Development Studio/i, BRAND + ' — ' + (CFG.brand?.tagline || 'Yazılım & Web'));
+      document.title = document.title.replace(/PIXELA Geliştirme Stüdyosu/i, BRAND + ' — ' + (CFG.brand?.tagline || 'Yazılım & Web'));
+      if (CFG.seo?.title) document.title = CFG.seo.title;
+    } else {
+      document.title = document.title.replace(/\bShader\b/gi, BRAND);
+    }
+
+    // Soft-nav hizlandirmak icin proje RSC prefetch
+    if (location.pathname === '/' || location.pathname === '') {
+      const slugs = (CFG.projects || []).map((p) => p.uid).filter(Boolean).slice(0, 12);
+      const fallback = [
+        'ehealth-arena',
+        'select-concept',
+        'gamily',
+        'heip',
+        'alamance-foods',
+        'glasbolaget',
+      ];
+      (slugs.length ? slugs : fallback).forEach((slug, i) => {
+        setTimeout(() => {
+          try {
+            fetch('/work/' + encodeURIComponent(slug) + '?_rsc=prefetch', {
+              headers: { RSC: '1', Accept: 'text/x-component' },
+            }).catch(() => {});
+          } catch (_) {}
+        }, 1500 + i * 200);
+      });
+    }
+
+    // Proje sayfasinda canvas henuz hazir degilse (siyah ekran) kisa yukleme goster
+    function watchWorkCanvas() {
+      if (!/^\/work\//.test(location.pathname)) return;
+      let ov = document.getElementById('pixela-work-loading');
+      const ensure = () => {
+        if (ov && ov.parentNode) return ov;
+        ov = document.createElement('div');
+        ov.id = 'pixela-work-loading';
+        ov.setAttribute('aria-live', 'polite');
+        ov.style.cssText =
+          'position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;color:#fcf9f3;font:400 18px Georgia,serif;letter-spacing:.02em;opacity:1;transition:opacity .35s ease';
+        ov.textContent = 'Proje yükleniyor…';
+        document.body.appendChild(ov);
+        return ov;
+      };
+      const hide = () => {
+        if (!ov || !ov.parentNode) return;
+        ov.style.opacity = '0';
+        setTimeout(() => {
+          if (ov && ov.parentNode) ov.remove();
+        }, 400);
+      };
+      let n = 0;
+      const tick = () => {
+        n++;
+        const c = document.querySelector('canvas');
+        const ready = c && (c.width > 400 || c.height > 400);
+        if (ready) {
+          hide();
+          return;
+        }
+        if (n === 3) ensure();
+        if (n < 200) setTimeout(tick, 100);
+        else hide();
+      };
+      setTimeout(tick, 50);
+    }
+    watchWorkCanvas();
+    // Soft-nav sonrasi tekrar kontrol
+    const _push = history.pushState.bind(history);
+    const _replace = history.replaceState.bind(history);
+    history.pushState = function (s, t, u) {
+      const r = _push(s, t, u);
+      setTimeout(watchWorkCanvas, 30);
+      return r;
+    };
+    history.replaceState = function (s, t, u) {
+      const r = _replace(s, t, u);
+      setTimeout(watchWorkCanvas, 30);
+      return r;
+    };
+    window.addEventListener('popstate', () => setTimeout(watchWorkCanvas, 30));
 
     const imgCache = {};
     function loadImg(path) {
@@ -303,9 +383,17 @@
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const h = Math.round((41 / 306) * canvas.width);
-      const y = Math.round((canvas.height - h) / 2);
-      ctx.drawImage(logo, 0, y, canvas.width, h);
+      if (logo) {
+        const h = Math.round((41 / 306) * canvas.width);
+        const y = Math.round((canvas.height - h) / 2);
+        ctx.drawImage(logo, 0, y, canvas.width, h);
+      } else {
+        ctx.fillStyle = '#fcf9f3';
+        ctx.font = '700 120px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(BRAND, canvas.width / 2, canvas.height / 2);
+      }
       return canvas;
     }
 
@@ -342,35 +430,45 @@
       return canvas;
     }
 
+    function isBrandMat(mat, obj) {
+      const objName = String(obj?.name || '').toLowerCase();
+      if (/phone-\d+-logo/.test(objName)) return 'shader-logo';
+
+      const name = String(mat.name || '').toLowerCase();
+      if (name === 'shader-logo' || name === 'beige-logo' || name === 'commodore-logo' || name === 'pixela-logo') {
+        return name === 'pixela-logo' ? 'shader-logo' : name;
+      }
+      // phones.glb bazen isim vermeden shader-logo dokusunu tutuyor
+      const src = String(mat.map?.image?.src || mat.emissiveMap?.image?.src || '');
+      if (/shader-logo|shader_logo|pixela-logo|phones\.glb/i.test(src)) return 'shader-logo';
+      return null;
+    }
+
     async function swapModelLogos() {
       const logo = await loadImg(GLB_LOGO);
-      if (!logo) return;
 
       eachScene((scene) => {
         scene.traverse((obj) => {
           const mats = [].concat(obj.material || []).filter(Boolean);
           for (const mat of mats) {
-            const name = (mat.name || '').toLowerCase();
-            if (
-              name !== 'shader-logo' &&
-              name !== 'beige-logo' &&
-              name !== 'commodore-logo'
-            )
-              continue;
             if (mat.userData?.__pixelaModel) continue;
+            const kind = isBrandMat(mat, obj);
+            if (!kind) continue;
 
             const img = mat.map?.image || mat.emissiveMap?.image;
-            if (!img) continue;
 
-            if (name === 'commodore-logo') {
+            if (kind === 'commodore-logo') {
+              if (!img || !logo) continue;
               patchCommodoreCanvas(img, logo).then((canvas) => {
                 if (applyTex(mat, canvas)) mat.userData.__pixelaModel = true;
               });
-            } else if (name === 'shader-logo') {
-              makeSplashCanvas(logo).then((canvas) => {
+            } else if (kind === 'shader-logo') {
+              // Telefon / splash: logo yoksa PIXELA yazisi ciz
+              makeSplashCanvas(logo || null).then((canvas) => {
                 if (applyTex(mat, canvas)) mat.userData.__pixelaModel = true;
               });
             } else {
+              if (!img || !logo) continue;
               patchBeigeCanvas(img, logo).then((canvas) => {
                 if (applyTex(mat, canvas)) mat.userData.__pixelaModel = true;
               });
@@ -399,10 +497,42 @@
             const h = img.naturalHeight || img.height || 0;
             const src = img.src || '';
             if (/copyright_footer/i.test(src) || LOGO_RE.test(src) || w === 306 || w === 1285) {
-              const pick =
-                /copyright_footer|logo_dark/i.test(src) || w === 306 || h === 41 ? dark : hover;
-              if (applyImg(mat, pick || dark)) mat.userData.__pixelaNav = true;
+              // Footer koyu zeminde: beyaz logo; nav dark/hover ayrimi
+              const pick = /copyright_footer/i.test(src)
+                ? hover
+                : /logo_dark/i.test(src) || w === 306 || h === 41
+                  ? dark
+                  : hover;
+              if (applyImg(mat, pick || hover || dark)) mat.userData.__pixelaNav = true;
             }
+          }
+        });
+      });
+    }
+
+    /** Bilgisayar ekran/reel isiklari — emissive guclendir */
+    function boostComputerLights() {
+      eachScene((scene) => {
+        scene.traverse((obj) => {
+          const mats = [].concat(obj.material || []).filter(Boolean);
+          for (const mat of mats) {
+            if (mat.userData?.__pixelaBright) continue;
+            const name = String(mat.name || '').toLowerCase();
+            const hasVideo =
+              !!(mat.map && (mat.map.isVideoTexture || mat.map.source?.data?.tagName === 'VIDEO')) ||
+              !!(mat.emissiveMap && (mat.emissiveMap.isVideoTexture || mat.emissiveMap.source?.data?.tagName === 'VIDEO'));
+            const isComputer =
+              /commodore|computer|screen|reel|monitor|display/i.test(name) ||
+              /commodore|computer/i.test(String(obj.name || '')) ||
+              hasVideo;
+            if (!isComputer) continue;
+            try {
+              if (mat.emissive?.setHex) mat.emissive.setHex(0xffffff);
+              mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, hasVideo ? 2.8 : 2.2);
+              if (typeof mat.toneMapped === 'boolean') mat.toneMapped = false;
+              mat.needsUpdate = true;
+              mat.userData.__pixelaBright = true;
+            } catch (_) {}
           }
         });
       });
@@ -410,10 +540,24 @@
 
     swapNavLogos();
     swapModelLogos();
-    [400, 800, 1500, 2500, 4000, 7000, 12000].forEach((ms) => {
+    boostComputerLights();
+    [400, 800, 1500, 2500, 4000, 7000, 12000, 20000].forEach((ms) => {
       setTimeout(swapNavLogos, ms);
       setTimeout(swapModelLogos, ms);
+      setTimeout(boostComputerLights, ms);
     });
+    // Iletisim bolumundeki telefonlar gec yuklenebilir
+    let ticks = 0;
+    const logoTimer = setInterval(() => {
+      swapModelLogos();
+      boostComputerLights();
+      ticks++;
+      if (ticks > 45) clearInterval(logoTimer);
+    }, 2000);
+    window.addEventListener('scroll', () => {
+      swapModelLogos();
+      boostComputerLights();
+    }, { passive: true });
   }
 
   if (document.readyState === 'loading') {
