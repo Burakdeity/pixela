@@ -781,20 +781,26 @@ function getBrowserTrJs() {
 let chunkPatchJs = null;
 function getChunkPatchJs() {
   if (!chunkPatchJs) {
-    /** URL rewrite + proje gecisinde boot ekranini atla (blend yamasi yok) */
+    /** URL rewrite + sadece proje gecisinde boot atla (ana sayfa boot kalir) */
     chunkPatchJs =
       "(function(){if(window.__pixelaChunkTr)return;window.__pixelaChunkTr=1;" +
       "var WP='" + WP_URL.replace(/'/g, "\\'") + "';" +
       "var GR=/\\/models\\/(shredder|computer)\\.glb/i;" +
-      // /work/ sayfalarinda veya ana sayfa bir kez acildiktan sonra boot atla
-      "try{window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)||sessionStorage.getItem('__pixelaBooted')==='1';" +
-      "if(!window.__pixelaSkipBoot){setTimeout(function(){try{sessionStorage.setItem('__pixelaBooted','1');window.__pixelaSkipBoot=1}catch(e){}},5000)}" +
-      "}catch(e){window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)}" +
-      "document.addEventListener('click',function(e){try{var a=e.target&&e.target.closest&&e.target.closest('a[href*=\"/work/\"]');if(!a)return;window.__pixelaSkipBoot=1;sessionStorage.setItem('__pixelaBooted','1')}catch(x){}},true);" +
+      // Ana sayfada boot goster; sadece /work/ veya proje navigasyonunda atla
+      "function pxWork(u){try{var p=typeof u==='string'?u:(u&&u.pathname)||'';return /\\/work\\//.test(String(p))}catch(e){return false}}" +
+      "function pxSkipOn(){try{window.__pixelaSkipBoot=1}catch(e){window.__pixelaSkipBoot=1}}" +
+      "try{window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)}catch(e){window.__pixelaSkipBoot=false}" +
+      // router.push('/work/...') anchor degil — history hook ile yakala
+      "if(!window.__pixelaWorkNav){window.__pixelaWorkNav=1;" +
+      "var _ps=history.pushState.bind(history),_rs=history.replaceState.bind(history);" +
+      "history.pushState=function(s,t,u){if(pxWork(u))pxSkipOn();return _ps(s,t,u)};" +
+      "history.replaceState=function(s,t,u){if(pxWork(u))pxSkipOn();return _rs(s,t,u)};" +
+      "document.addEventListener('click',function(e){try{var a=e.target&&e.target.closest&&e.target.closest('a[href*=\"/work/\"]');if(a)pxSkipOn()}catch(x){}},true);" +
+      "}" +
       "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
       "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
-      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=162';" +
-      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=162';" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=163';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=163';" +
       "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +
