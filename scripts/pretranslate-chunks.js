@@ -4,7 +4,7 @@ const path = require('path');
 const { applyTranslations } = require('../translations-tr');
 
 const ROOT = path.join(__dirname, '..');
-const SCRIPT_VER = '161';
+const SCRIPT_VER = '162';
 const SRC = path.join(ROOT, 'static', '_next', 'static', 'chunks');
 const DEST = path.join(ROOT, 'cache', `chunks-tr-v${SCRIPT_VER}`);
 
@@ -46,7 +46,6 @@ if (fs.existsSync(nav)) {
     ['.div(4.5).mul(p).mul(.1)', '.div(4.5).mul(p).mul(.55)'],
     ['xr(t.reelLightTexture,f).rgb.mul(.5)', 'xr(t.reelLightTexture,f).rgb.mul(1.0)'],
     ['t.emissiveNode=xr(n["commodore-logo"].map).mul(.4)', 't.emissiveNode=xr(n["commodore-logo"].map).mul(1.15)'],
-    // Reel <-> reelLight video sync (kalacak)
     ['Math.abs(e.currentTime-t.currentTime)>.15', 'Math.abs(e.currentTime-t.currentTime)>.04'],
   ];
   for (const [a, b] of lightPatches) {
@@ -60,7 +59,20 @@ if (fs.existsSync(nav)) {
     }
   }
 
+  // Proje gecisinde boot yukleme cubugunu atla (blend shader'a dokunma)
+  const bootFrom = 'l.current.loadingProgress.value=f.current';
+  const bootTo =
+    'l.current.loadingProgress.value=(typeof window!=="undefined"&&window.__pixelaSkipBoot)?100:f.current';
+  if (t.includes(bootFrom)) {
+    t = t.split(bootFrom).join(bootTo);
+    console.log('boot skip progress: applied');
+  } else if (t.includes(bootTo)) {
+    console.log('boot skip progress: already');
+  } else {
+    console.log('boot skip progress: MISS');
+  }
+
   fs.writeFileSync(nav, t);
-  console.log('boot skip removed:', !t.includes('__pixelaSkipBoot'));
+  console.log('boot skip flag in early script expected via getChunkPatchJs');
   console.log('natural blend:', t.includes('return TW(xd(e,1),r,r.a)'));
 }

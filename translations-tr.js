@@ -781,15 +781,20 @@ function getBrowserTrJs() {
 let chunkPatchJs = null;
 function getChunkPatchJs() {
   if (!chunkPatchJs) {
-    /** URL rewrite — boot/yukleme ekranina dokunma (skip yamasi siyah ekran yapardi) */
+    /** URL rewrite + proje gecisinde boot ekranini atla (blend yamasi yok) */
     chunkPatchJs =
       "(function(){if(window.__pixelaChunkTr)return;window.__pixelaChunkTr=1;" +
       "var WP='" + WP_URL.replace(/'/g, "\\'") + "';" +
       "var GR=/\\/models\\/(shredder|computer)\\.glb/i;" +
+      // /work/ sayfalarinda veya ana sayfa bir kez acildiktan sonra boot atla
+      "try{window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)||sessionStorage.getItem('__pixelaBooted')==='1';" +
+      "if(!window.__pixelaSkipBoot){setTimeout(function(){try{sessionStorage.setItem('__pixelaBooted','1');window.__pixelaSkipBoot=1}catch(e){}},5000)}" +
+      "}catch(e){window.__pixelaSkipBoot=/^\\/work\\//.test(location.pathname)}" +
+      "document.addEventListener('click',function(e){try{var a=e.target&&e.target.closest&&e.target.closest('a[href*=\"/work/\"]');if(!a)return;window.__pixelaSkipBoot=1;sessionStorage.setItem('__pixelaBooted','1')}catch(x){}},true);" +
       "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
       "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
-      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=122';" +
-      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=122';" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=162';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=162';" +
       "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +

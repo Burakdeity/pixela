@@ -80,8 +80,8 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=161';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=161';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=162';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=162';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -267,45 +267,18 @@
       });
     }
 
-    // Proje sayfasinda canvas henuz hazir degilse (siyah ekran) kisa yukleme goster
+    // Proje sayfasinda ekstra overlay gosterme — boot skip yeterli
     function watchWorkCanvas() {
       if (!/^\/work\//.test(location.pathname)) return;
-      let ov = document.getElementById('pixela-work-loading');
-      const ensure = () => {
-        if (ov && ov.parentNode) return ov;
-        ov = document.createElement('div');
-        ov.id = 'pixela-work-loading';
-        ov.setAttribute('aria-live', 'polite');
-        ov.style.cssText =
-          'position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;color:#fcf9f3;font:400 18px Georgia,serif;letter-spacing:.02em;opacity:1;transition:opacity .35s ease';
-        ov.textContent = 'Proje yükleniyor…';
-        document.body.appendChild(ov);
-        return ov;
-      };
-      const hide = () => {
-        if (!ov || !ov.parentNode) return;
-        ov.style.opacity = '0';
-        setTimeout(() => {
-          if (ov && ov.parentNode) ov.remove();
-        }, 400);
-      };
-      let n = 0;
-      const tick = () => {
-        n++;
-        const c = document.querySelector('canvas');
-        const ready = c && (c.width > 400 || c.height > 400);
-        if (ready) {
-          hide();
-          return;
-        }
-        if (n === 3) ensure();
-        if (n < 200) setTimeout(tick, 100);
-        else hide();
-      };
-      setTimeout(tick, 50);
+      try {
+        window.__pixelaSkipBoot = 1;
+        sessionStorage.setItem('__pixelaBooted', '1');
+      } catch (_) {}
+      const ov = document.getElementById('pixela-work-loading');
+      if (ov && ov.parentNode) ov.remove();
     }
     watchWorkCanvas();
-    // Soft-nav sonrasi tekrar kontrol
+    // Soft-nav sonrasi tekrar isaretle
     const _push = history.pushState.bind(history);
     const _replace = history.replaceState.bind(history);
     history.pushState = function (s, t, u) {
