@@ -80,8 +80,8 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=166';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=166';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=167';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=167';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -268,37 +268,6 @@
           } catch (_) {}
         }, 250 + i * 100);
       });
-    }
-
-    // Proje gecisinde boot atla — router.push('/work/...') history ile yakalanir
-    function markWorkSkip(url) {
-      try {
-        const u = url != null ? String(url) : location.pathname;
-        if (/\/work\//.test(u) || /^\/work\//.test(location.pathname)) {
-          window.__pixelaSkipBoot = 1;
-        }
-      } catch (_) {}
-      const ov = document.getElementById('pixela-work-loading');
-      if (ov && ov.parentNode) ov.remove();
-    }
-    markWorkSkip();
-    if (!window.__pixelaWorkNavScript) {
-      window.__pixelaWorkNavScript = 1;
-      const _push = history.pushState.bind(history);
-      const _replace = history.replaceState.bind(history);
-      history.pushState = function (s, t, u) {
-        markWorkSkip(u);
-        const r = _push(s, t, u);
-        setTimeout(() => markWorkSkip(u), 0);
-        return r;
-      };
-      history.replaceState = function (s, t, u) {
-        markWorkSkip(u);
-        const r = _replace(s, t, u);
-        setTimeout(() => markWorkSkip(u), 0);
-        return r;
-      };
-      window.addEventListener('popstate', () => setTimeout(markWorkSkip, 0));
     }
 
     const imgCache = {};

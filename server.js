@@ -211,7 +211,7 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '166';
+const SCRIPT_VER = '167';
 const REMOTE_ORIGIN = 'https://www.shader.se';
 const DEPLOYMENT_ID = 'dpl_7zBfSoUTJP474MZeo1QBxkHKryUu';
 
