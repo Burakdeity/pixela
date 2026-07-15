@@ -52,8 +52,13 @@ const LOGO_PROXY = {
 if (!fs.existsSync(CACHE)) fs.mkdirSync(CACHE, { recursive: true });
 
 function getCloudBaseUrl() {
-  const url = process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_URL || '';
-  return url ? url.replace(/\/$/, '') : null;
+  const fromEnv =
+    process.env.PUBLIC_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    (process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : '');
+  return fromEnv ? fromEnv.replace(/\/$/, '') : null;
 }
 
 function setPort(p) {

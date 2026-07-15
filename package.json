@@ -4,7 +4,8 @@
   "description": "PIXELA — yerel web sitesi sunucusu",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "pretranslate": "node scripts/pretranslate-chunks.js",
+    "start": "node scripts/pretranslate-chunks.js && node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
