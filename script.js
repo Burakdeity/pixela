@@ -80,8 +80,8 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=167';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=167';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=168';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=168';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -144,6 +144,37 @@
     document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
       a.href = 'mailto:' + email;
     });
+    patchSocialLinks();
+  }
+
+  function patchSocialLinks() {
+    const social = CFG.social || {};
+    const entries = [
+      ['linkedin', social.linkedin],
+      ['instagram', social.instagram],
+      ['twitter', social.x],
+      ['x (twitter)', social.x],
+      ['facebook', social.facebook],
+      ['youtube', social.youtube],
+    ];
+
+    document.querySelectorAll('a').forEach((a) => {
+      const haystack = `${a.getAttribute('aria-label') || ''} ${a.textContent || ''}`.toLowerCase();
+      const match = entries.find(([name]) => haystack.includes(name));
+      if (!match) return;
+      const url = match[1];
+      if (url) {
+        a.href = url;
+        a.hidden = false;
+        a.removeAttribute('aria-hidden');
+        a.removeAttribute('tabindex');
+      } else {
+        a.removeAttribute('href');
+        a.hidden = true;
+        a.setAttribute('aria-hidden', 'true');
+        a.setAttribute('tabindex', '-1');
+      }
+    });
   }
 
   function patchLiderLabels() {
@@ -173,8 +204,120 @@
         if (args.length < 2) args.push('_blank');
         if (args.length < 3) args.push('noopener');
       }
+      if (url && /linkedin\.com\/company\/shadersweden/i.test(String(url))) {
+        if (!CFG.social?.linkedin) return null;
+        args[0] = CFG.social.linkedin;
+      }
+      if (url && /instagram\.com\/shadersweden/i.test(String(url))) {
+        if (!CFG.social?.instagram) return null;
+        args[0] = CFG.social.instagram;
+      }
+      if (url && /x\.com\/shadersweden/i.test(String(url))) {
+        if (!CFG.social?.x) return null;
+        args[0] = CFG.social.x;
+      }
       return orig.apply(this, args);
     };
+  }
+
+  function installProjectLink() {
+    if (location.pathname !== '/' || document.getElementById('pixela-project-link')) return;
+
+    const link = document.createElement('a');
+    link.id = 'pixela-project-link';
+    link.setAttribute('aria-hidden', 'true');
+    link.tabIndex = -1;
+    link.style.cssText =
+      'position:fixed;z-index:60;display:none;background:transparent;color:transparent;' +
+      'text-decoration:none;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;';
+    document.body.appendChild(link);
+
+    let down = null;
+    let dragged = false;
+
+    function layout() {
+      const mobile = innerWidth <= 700;
+      link.style.top = mobile ? '13%' : '9%';
+      link.style.right = mobile ? '3%' : '6%';
+      link.style.width = mobile ? '94%' : '54%';
+      link.style.height = mobile ? '24%' : '23%';
+    }
+
+    function currentProject() {
+      const button = Array.from(document.querySelectorAll('button')).find((item) =>
+        (item.getAttribute('aria-label') || '').startsWith('Projeyi görüntüle:')
+      );
+      const label = button?.getAttribute('aria-label') || '';
+      const configured = (CFG.projects || []).find((project) => label.includes(project.title));
+      if (configured) return configured;
+
+      const shaderProjects = [
+        ['eHealth Arena', 'ehealth-arena'],
+        ['Select Concept', 'select-concept'],
+        ['Gamily', 'gamily'],
+        ['Alamance Foods', 'alamance-foods'],
+        ['Norrköpings Symfoniorkester', 'son'],
+        ['Glasbolaget', 'glasbolaget'],
+        ['SPP Dream Generator', 'spp-dream-generator'],
+        ['ICA-nissen', 'ica-nissen'],
+        ['Norrköpings Hamn', 'norrkopings-hamn'],
+        ['HEIP', 'heip'],
+        ['Design is Funny', 'design-is-funny'],
+      ];
+      const match = shaderProjects.find(([title]) => label.includes(title));
+      return match ? { title: match[0], uid: match[1] } : null;
+    }
+
+    function sync() {
+      const scroller = document.getElementById('scroll-container');
+      const y = scroller?.scrollTop || 0;
+      const inCarousel = y >= innerHeight * 0.72 && y <= innerHeight * 3.85;
+      const project = currentProject();
+      if (!inCarousel || !project?.uid) {
+        link.style.display = 'none';
+        link.removeAttribute('href');
+        return;
+      }
+      link.href = '/work/' + encodeURIComponent(project.uid);
+      link.title = `${project.title} projesini görüntüle`;
+      if (link.textContent !== project.title) link.textContent = project.title;
+      link.style.display = 'block';
+    }
+
+    link.addEventListener('pointerdown', (event) => {
+      down = { x: event.clientX, y: event.clientY };
+      dragged = false;
+    });
+    link.addEventListener('pointermove', (event) => {
+      if (!down) return;
+      dragged =
+        dragged ||
+        Math.hypot(event.clientX - down.x, event.clientY - down.y) > 12;
+    });
+    link.addEventListener('click', (event) => {
+      if (dragged) event.preventDefault();
+      down = null;
+      dragged = false;
+    });
+    link.addEventListener('pointercancel', () => {
+      down = null;
+      dragged = false;
+    });
+
+    const scroller = document.getElementById('scroll-container');
+    scroller?.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', () => {
+      layout();
+      sync();
+    });
+    new MutationObserver(sync).observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-label'],
+      childList: true,
+    });
+    layout();
+    sync();
   }
 
   function patchLiderLinks() {
@@ -235,6 +378,8 @@
     keepSeoTitle();
     setInterval(keepSeoTitle, 2000);
     [3000, 8000, 15000].forEach((ms) => setTimeout(() => { patchDomTurkish(); patchLiderLabels(); }, ms));
+    installProjectLink();
+    [800, 2000].forEach((ms) => setTimeout(installProjectLink, ms));
     document.documentElement.lang = 'tr';
     if (!/^\/work\//.test(location.pathname)) {
       document.title = document.title.replace(/\bShader\b/gi, BRAND);
@@ -248,7 +393,7 @@
     // Gercek /work route'larini erkenden isit
     if (location.pathname === '/' || location.pathname === '') {
       const slugs = (CFG.projects || [])
-        .map((p) => p.routeUid || p.uid)
+        .map((p) => p.uid)
         .filter(Boolean)
         .slice(0, 12);
       const fallback = [

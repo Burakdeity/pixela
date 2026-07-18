@@ -1,4 +1,9 @@
-const { getBrand, getContactEmail, getTagline } = require('./site-config');
+const {
+  getBrand,
+  getContactEmail,
+  getTagline,
+  loadSiteConfig,
+} = require('./site-config');
 
 function scrubBrandReferences(text, baseUrl = '') {
   if (!text || typeof text !== 'string') return text;
@@ -6,7 +11,10 @@ function scrubBrandReferences(text, baseUrl = '') {
   const brand = getBrand();
   const email = getContactEmail();
   const tagline = getTagline();
-  const base = String(baseUrl || '').replace(/\/$/, '');
+  const config = loadSiteConfig();
+  const contact = config.contact || {};
+  const socialUrls = Object.values(config.social || {}).filter(Boolean);
+  const base = String(baseUrl || config.seo?.url || '').replace(/\/$/, '');
 
   let out = text;
 
@@ -23,6 +31,10 @@ function scrubBrandReferences(text, baseUrl = '') {
   }
 
   out = out.replace(/\b[a-z]+@shader\.se\b/gi, email);
+  out = out.replace(
+    /"sameAs"\s*:\s*\[[^\]]*\]/g,
+    `"sameAs":${JSON.stringify(socialUrls)}`
+  );
 
   out = out.replace(/Shader Development Studio/g, `${brand} — ${tagline}`);
   out = out.replace(/Shader Sweden AB/g, brand);
@@ -45,8 +57,15 @@ function scrubBrandReferences(text, baseUrl = '') {
 
   out = out.replace(/https?:\/\/images\.prismic\.io\/shader\/[^"'\\]+/gi, '/pixela-boot-screen.png');
   out = out.replace(/images\.prismic\.io\/shader\//gi, '');
-  out = out.replace(/https?:\/\/(?:www\.)?linkedin\.com\/company\/shadersweden\/?/gi, '');
-  out = out.replace(/https?:\/\/x\.com\/shadersweden\/?/gi, '');
+  out = out.replace(/https?:\/\/(?:www\.)?linkedin\.com\/company\/shadersweden\/?/gi, config.social?.linkedin || '');
+  out = out.replace(/https?:\/\/(?:www\.)?instagram\.com\/shadersweden\/?/gi, config.social?.instagram || '');
+  out = out.replace(/https?:\/\/x\.com\/shadersweden\/?/gi, config.social?.x || '');
+  out = out.replace(/Laxholmstorget 3/g, contact.address || contact.city || 'Sakarya');
+  out = out.replace(/602 21(?: Norrköping)?/g, contact.city || 'Sakarya');
+  out = out.replace(/Norrköping,\s*Sweden/g, `${contact.city || 'Sakarya'}, Türkiye`);
+  out = out.replace(/Norrköping/g, contact.city || 'Sakarya');
+  out = out.replace(/"addressCountry":"SE"/g, '"addressCountry":"TR"');
+  out = out.replace(/"country":"Sweden","countryCode":"SE"/g, '"country":"Türkiye","countryCode":"TR"');
 
   out = out.replace(/\bAt Shader\b/g, `${brand} olarak`);
   out = out.replace(/\bShader is\b/g, `${brand}`);

@@ -9,7 +9,6 @@ const {
   getChunkPatchJs,
   getBrowserTrJs,
 } = require('./translations-tr');
-const { applyProjectOverrides } = require('./patch-projects');
 const {
   patchVideoLoader,
   patchHeipHtml,
@@ -129,7 +128,7 @@ function prepareHomeRscBody(raw) {
   const body = typeof raw === 'string' ? raw : raw.toString('utf8');
   const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   if (rscBodyCache.has('home')) return rscBodyCache.get('home');
-  const out = translateFlightBody(normalized);
+  const out = translateFlightBody(scrubBrandReferences(normalized, getPublicUrl()));
   rscBodyCache.set('home', out);
   return out;
 }
@@ -139,7 +138,7 @@ function prepareWorkRscBody(raw, slug) {
   const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const key = 'work:' + slug;
   if (rscBodyCache.has(key)) return rscBodyCache.get(key);
-  const out = translateFlightBody(normalized);
+  const out = translateFlightBody(scrubBrandReferences(normalized, getPublicUrl()));
   rscBodyCache.set(key, out);
   return out;
 }
@@ -211,12 +210,10 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '167';
+const SCRIPT_VER = '168';
 const REMOTE_ORIGIN = 'https://www.shader.se';
 const DEPLOYMENT_ID = 'dpl_7zBfSoUTJP474MZeo1QBxkHKryUu';
 
-/** false = orijinal Shader proje karuseli (site-config.projects kullanilmaz). */
-const ENABLE_CUSTOM_PROJECTS = false;
 /** false = HEIP / mux medyalari orijinal kalsin (Lider Teknik yamasi yok). */
 const REPLACE_HEIP_WITH_LIDER = false;
 
@@ -288,21 +285,25 @@ function getPublicUrl() {
       if (url) return url.replace(/\/$/, '');
     }
   } catch (_) {}
+  const configured = getPublicConfig().seo?.url;
+  if (configured) return String(configured).replace(/\/$/, '');
   return SITE_URL.replace(/\/$/, '');
 }
 
-function patchSeo(html) {
+function patchSeo(html, pathname = '/') {
   const base = getPublicUrl();
+  const pagePath = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
+  const pageUrl = base + pagePath;
   let out = html;
 
-  out = out.replace(/<link rel="canonical" href="[^"]*"/g, `<link rel="canonical" href="${base}/"`);
-  out = out.replace(/property="og:url" content="[^"]*"/g, `property="og:url" content="${base}/"`);
-  out = out.replace(/name="twitter:url" content="[^"]*"/g, `name="twitter:url" content="${base}/"`);
+  out = out.replace(/<link rel="canonical" href="[^"]*"/g, `<link rel="canonical" href="${pageUrl}"`);
+  out = out.replace(/property="og:url" content="[^"]*"/g, `property="og:url" content="${pageUrl}"`);
+  out = out.replace(/name="twitter:url" content="[^"]*"/g, `name="twitter:url" content="${pageUrl}"`);
 
   if (!out.includes('hreflang="tr"')) {
     out = out.replace(
       '</head>',
-      `<link rel="alternate" hreflang="tr" href="${base}/" />\n<meta http-equiv="content-language" content="tr" />\n</head>`
+      `<link rel="alternate" hreflang="tr" href="${pageUrl}" />\n<meta http-equiv="content-language" content="tr" />\n</head>`
     );
   }
   return out;
@@ -368,7 +369,11 @@ function injectPixelaScripts(html) {
 /** HTML sayfa govdesi: Flight-guvenli Turkce ceviri + cache-bust + PIXELA scriptleri */
 function preparePageHtml(raw, cacheKey) {
   if (cacheKey && htmlPageCache.has(cacheKey)) return htmlPageCache.get(cacheKey);
-  const out = injectPixelaScripts(injectHead(translateHtmlSafe(raw)));
+  const pathname = cacheKey === 'home' ? '/' : cacheKey?.replace(/^work:/, '/work/') || '/';
+  let translated = translateHtmlSafe(raw);
+  translated = patchSeo(translated, pathname);
+  translated = scrubHtmlOutsideFlight(translated, getPublicUrl());
+  const out = injectPixelaScripts(injectHead(translated));
   if (cacheKey) htmlPageCache.set(cacheKey, out);
   return out;
 }
