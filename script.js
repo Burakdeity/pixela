@@ -33,6 +33,19 @@
     ['Good buy.', 'İyi alışverişler!'],
     ['“Hello”', '“Merhaba”'],
     ['Loading...', 'Yükleniyor...'],
+    ['Next Project', 'Sonraki proje'],
+    ['Previous Project', 'Önceki proje'],
+    ['Skip to content', 'İçeriğe geç'],
+    ['Go back to projects overview', 'Projelere dön'],
+    ['Main navigation', 'Ana menü'],
+    ['Project details', 'Proje detayları'],
+    ['Continue to next project', 'Sonraki projeye geç'],
+    ['opens in new tab', 'yeni sekmede açılır'],
+    ['Web Design', 'Web Tasarımı'],
+    ['Campaign Website', 'Kampanya Sitesi'],
+    ['3D Showroom', 'Web Uygulaması'],
+    ['3D Visualisation', 'Kurumsal Site'],
+    ['Interactive Experience', 'İnteraktif Deneyim'],
     ['Laxholmstorget 3', 'Sakarya'],
     ['602 21 Sakarya', 'Sakarya'],
     ['602 21 Norrköping', 'Sakarya'],
@@ -80,8 +93,8 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=168';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=168';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=173';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=173';
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -243,10 +256,22 @@
       link.style.height = mobile ? '24%' : '23%';
     }
 
+    function viewProjectButton() {
+      return Array.from(document.querySelectorAll('button')).find((item) => {
+        const label = item.getAttribute('aria-label') || '';
+        return (
+          label.startsWith('Projeyi görüntüle:') ||
+          label.startsWith('View project:')
+        );
+      });
+    }
+
+    function routeSlug(project) {
+      return project?.routeUid || project?.uid || '';
+    }
+
     function currentProject() {
-      const button = Array.from(document.querySelectorAll('button')).find((item) =>
-        (item.getAttribute('aria-label') || '').startsWith('Projeyi görüntüle:')
-      );
+      const button = viewProjectButton();
       const label = button?.getAttribute('aria-label') || '';
       const configured = (CFG.projects || []).find((project) => label.includes(project.title));
       if (configured) return configured;
@@ -262,10 +287,16 @@
         ['ICA-nissen', 'ica-nissen'],
         ['Norrköpings Hamn', 'norrkopings-hamn'],
         ['HEIP', 'heip'],
+        ['Lider Teknik', 'heip'],
         ['Design is Funny', 'design-is-funny'],
       ];
       const match = shaderProjects.find(([title]) => label.includes(title));
-      return match ? { title: match[0], uid: match[1] } : null;
+      if (!match) return null;
+      const byRoute = (CFG.projects || []).find(
+        (project) => (project.routeUid || project.uid) === match[1]
+      );
+      if (byRoute) return byRoute;
+      return { title: match[0], uid: match[1], routeUid: match[1] };
     }
 
     function sync() {
@@ -273,12 +304,13 @@
       const y = scroller?.scrollTop || 0;
       const inCarousel = y >= innerHeight * 0.72 && y <= innerHeight * 3.85;
       const project = currentProject();
-      if (!inCarousel || !project?.uid) {
+      const slug = routeSlug(project);
+      if (!inCarousel || !slug) {
         link.style.display = 'none';
         link.removeAttribute('href');
         return;
       }
-      link.href = '/work/' + encodeURIComponent(project.uid);
+      link.href = '/work/' + encodeURIComponent(slug);
       link.title = `${project.title} projesini görüntüle`;
       if (link.textContent !== project.title) link.textContent = project.title;
       link.style.display = 'block';
@@ -294,10 +326,30 @@
         dragged ||
         Math.hypot(event.clientX - down.x, event.clientY - down.y) > 12;
     });
+    // Soft-nav: Shader.se gibi router.push ile projeye gir — hard reload/boot yok
     link.addEventListener('click', (event) => {
-      if (dragged) event.preventDefault();
+      event.preventDefault();
+      event.stopPropagation();
+      if (dragged) {
+        down = null;
+        dragged = false;
+        return;
+      }
       down = null;
       dragged = false;
+      const btn = viewProjectButton();
+      if (btn) {
+        btn.click();
+        return;
+      }
+      const slug = routeSlug(currentProject());
+      if (!slug) return;
+      try {
+        if (window.next?.router?.push) {
+          window.next.router.push('/work/' + encodeURIComponent(slug));
+          return;
+        }
+      } catch (_) {}
     });
     link.addEventListener('pointercancel', () => {
       down = null;
@@ -377,7 +429,31 @@
     patchLiderLabels();
     keepSeoTitle();
     setInterval(keepSeoTitle, 2000);
-    [3000, 8000, 15000].forEach((ms) => setTimeout(() => { patchDomTurkish(); patchLiderLabels(); }, ms));
+    const forceTr = () => {
+      document.documentElement.lang = 'tr';
+      patchDomTurkish();
+      patchLiderLabels();
+      patchContactLinks();
+    };
+    [500, 1500, 3000, 8000, 15000].forEach((ms) => setTimeout(forceTr, ms));
+    // Soft-nav /work gecisinde İngilizce UI kalmasin
+    if (!window.__pixelaTrNav) {
+      window.__pixelaTrNav = 1;
+      const wrapHist = (fn) =>
+        function () {
+          const r = fn.apply(this, arguments);
+          setTimeout(forceTr, 50);
+          setTimeout(forceTr, 400);
+          setTimeout(forceTr, 1200);
+          return r;
+        };
+      history.pushState = wrapHist(history.pushState.bind(history));
+      history.replaceState = wrapHist(history.replaceState.bind(history));
+      window.addEventListener('popstate', () => {
+        setTimeout(forceTr, 50);
+        setTimeout(forceTr, 400);
+      });
+    }
     installProjectLink();
     [800, 2000].forEach((ms) => setTimeout(installProjectLink, ms));
     document.documentElement.lang = 'tr';
@@ -393,7 +469,7 @@
     // Gercek /work route'larini erkenden isit
     if (location.pathname === '/' || location.pathname === '') {
       const slugs = (CFG.projects || [])
-        .map((p) => p.uid)
+        .map((p) => p.routeUid || p.uid)
         .filter(Boolean)
         .slice(0, 12);
       const fallback = [

@@ -128,7 +128,9 @@ function prepareHomeRscBody(raw) {
   const body = typeof raw === 'string' ? raw : raw.toString('utf8');
   const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   if (rscBodyCache.has('home')) return rscBodyCache.get('home');
-  const out = translateFlightBody(scrubBrandReferences(normalized, getPublicUrl()));
+  // Proje dizisini burada degistirme — T uzunluklari bozulup karusel bosaliyor.
+  // Turkce + marka: translateFlightBody (payload icinde scrub).
+  const out = translateFlightBody(normalized);
   rscBodyCache.set('home', out);
   return out;
 }
@@ -138,7 +140,8 @@ function prepareWorkRscBody(raw, slug) {
   const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const key = 'work:' + slug;
   if (rscBodyCache.has(key)) return rscBodyCache.get(key);
-  const out = translateFlightBody(scrubBrandReferences(normalized, getPublicUrl()));
+  // patchWorkPageForSlug T uzunluklarini bozar; once cevir, HTML yolunda ayrica yama yapilir
+  const out = translateFlightBody(normalized);
   rscBodyCache.set(key, out);
   return out;
 }
@@ -210,7 +213,7 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '168';
+const SCRIPT_VER = '174';
 const REMOTE_ORIGIN = 'https://www.shader.se';
 const DEPLOYMENT_ID = 'dpl_7zBfSoUTJP474MZeo1QBxkHKryUu';
 
@@ -272,7 +275,13 @@ function buildConfigScript() {
 
 function buildEarlyHook() {
   const patch = getChunkPatchJs().replace(/<\//g, '<\\/');
-  return `<script id="pixela-early">${patch}</script>`;
+  // Next soft-nav: html data-dpl-id ile X-Nextjs-Deployment-Id eslesmezse
+  // router.push bilerek full page load yapar → PIXELA boot tekrarlar.
+  // Erken set et (SSR attribute hydration #418'e dusmesin).
+  const dpl =
+    `try{document.documentElement.setAttribute('data-dpl-id','${DEPLOYMENT_ID}')}` +
+    `catch(e){}`;
+  return `<script id="pixela-early">${dpl};${patch}</script>`;
 }
 
 function getPublicUrl() {
@@ -346,9 +355,13 @@ function stripBrokenPreloads(html) {
 function injectHead(html) {
   // Flight govdesine dokunma; sadece attribute cache-bust + bos preload temizligi
   let out = stripBrokenPreloads(html);
-  // Vercel data-dpl-id SSR HTML'de var, React tree'de yok → hydration #418 (HTML)
+  // Soft-nav: data-dpl-id ile X-Nextjs-Deployment-Id eslesmeli; yoksa full reload + boot
+  // Tam Turkce: lang her zaman tr — İngilizce locale/seçenek yok
   out = out.replace(/<html([^>]*)>/i, (_, attrs) => {
-    return '<html' + attrs.replace(/\s*data-dpl-id="[^"]*"/i, '') + '>';
+    let cleaned = attrs
+      .replace(/\s*data-dpl-id="[^"]*"/i, '')
+      .replace(/\s*lang="[^"]*"/i, '');
+    return `<html${cleaned} lang="tr" data-dpl-id="${DEPLOYMENT_ID}">`;
   });
   out = bustAssetUrls(out);
   return out;
@@ -370,6 +383,7 @@ function injectPixelaScripts(html) {
 function preparePageHtml(raw, cacheKey) {
   if (cacheKey && htmlPageCache.has(cacheKey)) return htmlPageCache.get(cacheKey);
   const pathname = cacheKey === 'home' ? '/' : cacheKey?.replace(/^work:/, '/work/') || '/';
+  // Proje override'i Flight push payload uzunluklarini bozabiliyor — once guvenli ceviri
   let translated = translateHtmlSafe(raw);
   translated = patchSeo(translated, pathname);
   translated = scrubHtmlOutsideFlight(translated, getPublicUrl());

@@ -273,6 +273,8 @@ function patchWorkPageForSlug(body, slug) {
 
   for (const orig of originals) {
     if (orig === title) continue;
+    // Alt basliklari title ile ezme — sadece gercek proje adi
+    if (/showroom|visualisation|experience|website|design/i.test(orig)) continue;
     out = out.split(orig).join(title);
   }
 
@@ -287,7 +289,28 @@ function patchWorkPageForSlug(body, slug) {
   });
 
   if (desc) {
-    // Kisa slug odaklı description degisimleri zor; title/subtitle odaklı kalsın
+    // Bilinen İngilizce uzun aciklamalari PIXELA Turkce metniyle degistir
+    const EN_DESCS = [
+      "We created an interactive 3D platform that explores how the latest e-health solutions work in practice. From the patient's home to hospital environments and care providers' workplaces. Users can follow real care journeys, and understand how it all connects to create safer, more efficient care.",
+      'HEIP is a visualisation of a future healthcare system, where patients, caregivers and healthcare providers are connected through a digital platform.',
+    ];
+    for (const en of EN_DESCS) {
+      if (out.includes(en)) out = out.split(en).join(desc);
+    }
+    // Meta description / og:description icinde kalan İngilizce parcalari temizle
+    out = out.replace(
+      /(?:content|description)("="|"\\":\\"|":")([^"]*We created an interactive 3D platform[^"]*)(")/gi,
+      `$1${desc.replace(/"/g, '\\"')}$3`
+    );
+    out = out.replace(
+      /Dila Lazer,\s*iş birliğiyle\s*\.\s*We created[^"<]*/g,
+      desc
+    );
+    out = out.replace(
+      /eHealth Arena,\s*in collaboration with[^"<]*We created[^"<]*/gi,
+      desc
+    );
+    out = out.replace(/We created an interactive 3D platform[^"<.]*(?:\.[^"<]*)?/g, desc);
   }
 
   if (slug === 'heip') {

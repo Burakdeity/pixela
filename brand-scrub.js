@@ -66,6 +66,8 @@ function scrubBrandReferences(text, baseUrl = '') {
   out = out.replace(/Norrköping/g, contact.city || 'Sakarya');
   out = out.replace(/"addressCountry":"SE"/g, '"addressCountry":"TR"');
   out = out.replace(/"country":"Sweden","countryCode":"SE"/g, '"country":"Türkiye","countryCode":"TR"');
+  out = out.replace(/"knowsLanguage"\s*:\s*\[[^\]]*\]/g, '"knowsLanguage":["tr"]');
+  out = out.replace(/\\"knowsLanguage\\"\s*:\s*\[[^\]]*\]/g, '\\"knowsLanguage\\":[\\"tr\\"]');
 
   out = out.replace(/\bAt Shader\b/g, `${brand} olarak`);
   out = out.replace(/\bShader is\b/g, `${brand}`);

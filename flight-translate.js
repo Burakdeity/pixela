@@ -35,6 +35,9 @@ function translateText(text) {
   );
   out = out.split('"lang":"en"').join('"lang":"tr"');
   out = out.split('lang="en"').join('lang="tr"');
+  out = out.split('"knowsLanguage":["en","sv"]').join('"knowsLanguage":["tr"]');
+  out = out.split('"knowsLanguage":["sv","en"]').join('"knowsLanguage":["tr"]');
+  out = out.split('\\"knowsLanguage\\":[\\"en\\",\\"sv\\"]').join('\\"knowsLanguage\\":[\\"tr\\"]');
   return scrubBrandReferences(out);
 }
 
