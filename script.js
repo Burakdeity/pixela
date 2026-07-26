@@ -23,8 +23,15 @@
     ['Visit site', 'Siteyi ziyaret et'],
     ['Selected Work', 'Projelerim'],
     ['About Us', 'Hakkımda'],
-    ['Book a call', COPY.ctaButton || 'WhatsApp’tan Yazın'],
-    ['Book a Call Today', COPY.ctaHeadline || 'Projenizi Konuşalım'],
+    ['Book a call', COPY.ctaButton || 'WhatsApp’tan Yaz'],
+    ['Book a Call Today', COPY.ctaHeadline || 'Hadi Konuşalım'],
+    ['WhatsApp’tan Yazın', COPY.ctaButton || 'WhatsApp’tan Yaz'],
+    ['Projenizi Konuşalım', COPY.ctaHeadline || 'Hadi Konuşalım'],
+    ['Yazılımla Markanı Öne Çıkar', COPY.heroTitle || 'Markanı Ekranda Hissettir'],
+    ['Markanı Ekranda Canlandır', COPY.heroTitle || 'Markanı Ekranda Hissettir'],
+    ['Seçili projelere göz atmak için kaydır', COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor'],
+    ['Seçili işlere kaydır — her biri canlı bir vitrin', COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor'],
+    ['Birlikte Çalıştığım Markalar', COPY.clientsTitle || 'Birlikte İz Bıraktığımız Markalar'],
     ['Contact', 'İletişim'],
     ['Home', 'Ana Sayfa'],
     ['Visit us', 'Adres'],
@@ -93,8 +100,14 @@
       return src.replace(/^https?:\/\/[^/]+/i, '').split('?')[0] + '?_=' + Date.now();
     }
     if (/copyright_footer\.png/i.test(src)) return HOVER + '?v=footer-white';
-    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=173';
-    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=173';
+    if (/\/textures\/boot_screen_mobile\.png/i.test(src)) return '/pixela-boot-screen-mobile.png?v=179';
+    if (/\/textures\/boot_screen\.png/i.test(src)) return '/pixela-boot-screen.png?v=179';
+    if (/\/textures\/footer_certificate\.png/i.test(src)) {
+      return '/pixela-footer-certificate.png?v=179';
+    }
+    if (/\/textures\/a11y-statement\.png/i.test(src)) {
+      return '/pixela-a11y-statement.png?v=179';
+    }
     if (!LOGO_RE.test(src)) return src;
     return /logo_dark/i.test(src) ? DARK : HOVER;
   }
@@ -236,17 +249,20 @@
   function installProjectLink() {
     if (location.pathname !== '/' || document.getElementById('pixela-project-link')) return;
 
-    const link = document.createElement('a');
+    // button: mobilde <a href> hard reload + boot tetikliyor
+    const link = document.createElement('button');
+    link.type = 'button';
     link.id = 'pixela-project-link';
     link.setAttribute('aria-hidden', 'true');
     link.tabIndex = -1;
     link.style.cssText =
       'position:fixed;z-index:60;display:none;background:transparent;color:transparent;' +
-      'text-decoration:none;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;';
+      'border:0;padding:0;margin:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;';
     document.body.appendChild(link);
 
     let down = null;
     let dragged = false;
+    let opened = false;
 
     function layout() {
       const mobile = innerWidth <= 700;
@@ -258,6 +274,7 @@
 
     function viewProjectButton() {
       return Array.from(document.querySelectorAll('button')).find((item) => {
+        if (item === link) return false;
         const label = item.getAttribute('aria-label') || '';
         return (
           label.startsWith('Projeyi görüntüle:') ||
@@ -299,61 +316,99 @@
       return { title: match[0], uid: match[1], routeUid: match[1] };
     }
 
-    function sync() {
-      const scroller = document.getElementById('scroll-container');
-      const y = scroller?.scrollTop || 0;
-      const inCarousel = y >= innerHeight * 0.72 && y <= innerHeight * 3.85;
-      const project = currentProject();
-      const slug = routeSlug(project);
-      if (!inCarousel || !slug) {
-        link.style.display = 'none';
-        link.removeAttribute('href');
-        return;
-      }
-      link.href = '/work/' + encodeURIComponent(slug);
-      link.title = `${project.title} projesini görüntüle`;
-      if (link.textContent !== project.title) link.textContent = project.title;
-      link.style.display = 'block';
-    }
-
-    link.addEventListener('pointerdown', (event) => {
-      down = { x: event.clientX, y: event.clientY };
-      dragged = false;
-    });
-    link.addEventListener('pointermove', (event) => {
-      if (!down) return;
-      dragged =
-        dragged ||
-        Math.hypot(event.clientX - down.x, event.clientY - down.y) > 12;
-    });
-    // Soft-nav: Shader.se gibi router.push ile projeye gir — hard reload/boot yok
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (dragged) {
-        down = null;
-        dragged = false;
-        return;
-      }
-      down = null;
-      dragged = false;
+    function softOpenProject() {
       const btn = viewProjectButton();
       if (btn) {
+        try {
+          btn.dispatchEvent(
+            new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerType: 'touch' })
+          );
+          btn.dispatchEvent(
+            new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerType: 'touch' })
+          );
+        } catch (_) {}
         btn.click();
-        return;
+        return true;
       }
       const slug = routeSlug(currentProject());
-      if (!slug) return;
+      if (!slug) return false;
       try {
         if (window.next?.router?.push) {
           window.next.router.push('/work/' + encodeURIComponent(slug));
-          return;
+          return true;
         }
       } catch (_) {}
-    });
+      return false;
+    }
+
+    let syncing = false;
+    function sync() {
+      // aria-label yazmak MutationObserver'i tekrar tetikler → ana thread kilitlenirdi
+      if (syncing) return;
+      syncing = true;
+      try {
+        const scroller = document.getElementById('scroll-container');
+        const y = scroller?.scrollTop || 0;
+        const inCarousel = y >= innerHeight * 0.72 && y <= innerHeight * 3.85;
+        const project = currentProject();
+        const slug = routeSlug(project);
+        if (!inCarousel || !slug) {
+          if (link.style.display !== 'none') link.style.display = 'none';
+          link.classList.remove('is-hot');
+          if (link.hasAttribute('aria-label')) link.removeAttribute('aria-label');
+          return;
+        }
+        const label = `${project.title} projesini görüntüle`;
+        if (link.getAttribute('aria-label') !== label) link.setAttribute('aria-label', label);
+        if (link.title !== label) link.title = label;
+        if (link.textContent !== project.title) link.textContent = project.title;
+        if (link.style.display !== 'block') link.style.display = 'block';
+        link.classList.add('is-hot');
+      } finally {
+        syncing = false;
+      }
+    }
+
+    function onPointerDown(event) {
+      down = { x: event.clientX, y: event.clientY };
+      dragged = false;
+      opened = false;
+    }
+
+    function onPointerMove(event) {
+      if (!down) return;
+      const threshold = innerWidth <= 700 ? 22 : 12;
+      dragged =
+        dragged ||
+        Math.hypot(event.clientX - down.x, event.clientY - down.y) > threshold;
+    }
+
+    function onPointerUp(event) {
+      if (!down) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const wasDragged = dragged;
+      down = null;
+      dragged = false;
+      if (wasDragged || opened) return;
+      opened = true;
+      softOpenProject();
+    }
+
+    link.addEventListener('pointerdown', onPointerDown);
+    link.addEventListener('pointermove', onPointerMove);
+    link.addEventListener('pointerup', onPointerUp);
     link.addEventListener('pointercancel', () => {
       down = null;
       dragged = false;
+      opened = false;
+    });
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (opened) return;
+      opened = true;
+      softOpenProject();
     });
 
     const scroller = document.getElementById('scroll-container');
@@ -699,7 +754,7 @@
             if (!isComputer) continue;
             try {
               if (mat.emissive?.setHex) mat.emissive.setHex(0xffffff);
-              mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, hasVideo ? 2.8 : 2.2);
+              mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, hasVideo ? 3.2 : 2.5);
               if (typeof mat.toneMapped === 'boolean') mat.toneMapped = false;
               mat.needsUpdate = true;
               mat.userData.__pixelaBright = true;

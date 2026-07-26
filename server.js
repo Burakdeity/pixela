@@ -38,6 +38,8 @@ const LOCAL = {
   'pixela-copyright.svg': 'image/svg+xml; charset=utf-8',
   'pixela-boot-screen.png': 'image/png',
   'pixela-boot-screen-mobile.png': 'image/png',
+  'pixela-footer-certificate.png': 'image/png',
+  'pixela-a11y-statement.png': 'image/png',
   'shredder-pixela.glb': 'model/gltf-binary',
   'computer-pixela.glb': 'model/gltf-binary',
   'phones-pixela.glb': 'model/gltf-binary',
@@ -213,7 +215,7 @@ function logoReplacement(pathname) {
   return null;
 }
 
-const SCRIPT_VER = '174';
+const SCRIPT_VER = '179';
 const REMOTE_ORIGIN = 'https://www.shader.se';
 const DEPLOYMENT_ID = 'dpl_7zBfSoUTJP474MZeo1QBxkHKryUu';
 
@@ -810,6 +812,14 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/textures/boot_screen_mobile.png') {
     return sendLocal('pixela-boot-screen-mobile.png', res);
+  }
+
+  if (pathname === '/textures/footer_certificate.png') {
+    return sendLocal('pixela-footer-certificate.png', res);
+  }
+
+  if (pathname === '/textures/a11y-statement.png') {
+    return sendLocal('pixela-a11y-statement.png', res);
   }
 
   if (pathname.startsWith('/textures/')) {

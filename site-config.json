@@ -2,11 +2,11 @@
   "brand": {
     "name": "PIXELA",
     "tagline": "Yazılım & Web",
-    "description": "Ben Burak. Kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum — markanızı dijitalde öne çıkarırım."
+    "description": "Ben Burak. Siteler, paneller ve özel yazılım kuruyorum — markanı ekranda net, hızlı ve akılda kalır hale getiririm."
   },
   "contact": {
     "whatsapp": "905319282677",
-    "whatsappMessage": "Merhaba Burak, PIXELA üzerinden yazıyorum.",
+    "whatsappMessage": "Merhaba Burak, PIXELA’dan yazıyorum.",
     "email": "info@pixela.com.tr",
     "businessEmail": "info@pixela.com.tr",
     "address": "Sakarya, Türkiye",
@@ -22,29 +22,29 @@
   "seo": {
     "url": "https://pixela.com.tr",
     "title": "PIXELA — Burak | Yazılım & Web",
-    "description": "Sakarya merkezli yazılım ve web geliştirme. Kurumsal site, e-ticaret ve özel paneller — hızlı, mobil uyumlu, aramalarda görünür.",
-    "keywords": "web tasarım, yazılım, kurumsal site, e-ticaret, Sakarya, Burak"
+    "description": "Sakarya’dan kurumsal site, e-ticaret ve özel yazılım. Hızlı, mobil uyumlu, aramalarda görünür — markanı dijitale taşıyan çözümler.",
+    "keywords": "web tasarım, yazılım, kurumsal site, e-ticaret, Sakarya, Burak, PIXELA"
   },
   "copy": {
-    "heroTitle": "Yazılımla Markanı Öne Çıkar",
-    "heroSubtitle": "Seçili projelere göz atmak için kaydır",
+    "heroTitle": "Markanı Ekranda Hissettir",
+    "heroSubtitle": "Kaydır — seçili işler seni bekliyor",
     "aboutTitle": "Merhaba, ben Burak",
-    "aboutBody": "PIXELA ile işletmelere kurumsal siteler, paneller ve özel yazılım geliştiriyorum. Amacım basit: sitenizi hızlı, anlaşılır ve aramalarda üst sıralara taşıyacak şekilde kurmak.",
-    "clientsTitle": "Birlikte Çalıştığım Markalar",
-    "clientsBody": "Farklı sektörlerden işletmelerle çalıştım. Ortak nokta hep aynıydı: dijitalde daha güçlü görünmek.",
+    "aboutBody": "PIXELA ile işletmelere site, panel ve özel yazılım kuruyorum. Her işte tek hedef: ekranda güven veren, kullanımı kolay, aramalarda görünen bir dijital vitrin.",
+    "clientsTitle": "Birlikte İz Bıraktığımız Markalar",
+    "clientsBody": "Farklı sektörler, aynı istek: dijitalde daha net görünmek ve müşteriye kolay ulaşmak.",
     "contactTitle": "İletişim",
-    "contactBody": "Yeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.",
-    "ctaButton": "WhatsApp’tan Yazın",
-    "ctaHeadline": "Projenizi Konuşalım"
+    "contactBody": "Yeni bir site veya yazılım aklındaysa yaz. Kısa bir sohbetle ihtiyacı netleştirip yolu birlikte çizeriz.",
+    "ctaButton": "WhatsApp’tan Yaz",
+    "ctaHeadline": "Hadi Konuşalım"
   },
   "projects": [
     {
       "uid": "dila-lazer",
       "routeUid": "ehealth-arena",
       "title": "Dila Lazer",
-      "subtitle": "E-Ticaret Sitesi",
+      "subtitle": "E-Ticaret",
       "url": "https://www.dilalazer.com/",
-      "description": "Neon LED, lazer kesim ve özel tasarım ürünleri için e-ticaret sitesi. 81 ile teslimat, kendin tasarla modülü ve online sipariş altyapısı.",
+      "description": "Neon, lazer kesim ve özel tasarım ürünleri için canlı bir e-ticaret vitrini. 81 ile teslimat, kendin tasarla ve sorunsuz sipariş akışı.",
       "poster": "/textures/thumb_fallback.png"
     },
     {
@@ -53,7 +53,7 @@
       "title": "Lider Teknik",
       "subtitle": "Kurumsal Site",
       "url": "https://www.sakaryaliderklima.com/",
-      "description": "Sakarya ve çevresinde klima montaj, bakım ve VRF çözümleri sunan Lider Teknik için kurumsal web sitesi. Hizmet kataloğu, akıllı klima araçları ve WhatsApp ile hızlı teklif.",
+      "description": "Sakarya’da klima ve VRF için kurumsal site. Hizmet kataloğu, akıllı araçlar ve WhatsApp ile tek tıkta teklif.",
       "video": "/videos/heip-lider-teknik.mp4",
       "poster": "/videos/heip-poster.jpg"
     },
@@ -63,7 +63,7 @@
       "title": "RK Rent A Car",
       "subtitle": "Kurumsal Site",
       "url": "https://sakaryarkrentacar.com/",
-      "description": "Sakarya araç kiralama firması için kurumsal site. Online rezervasyon, filo tanıtımı, kampanyalar ve 7/24 iletişim formu.",
+      "description": "Sakarya araç kiralama için sade kurumsal site. Filo, kampanyalar, rezervasyon ve her an ulaşılabilir iletişim.",
       "poster": "/textures/thumb_fallback.png"
     }
   ]

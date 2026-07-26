@@ -30,11 +30,11 @@ const BASE_PAIRS = [
   ['Shader Sweden AB', `${BRAND}`],
   [
     'Empowering Your Business with Next-Generation Interactive 3D and AI Solutions. Based in Sweden and Working with Brands and Agencies Worldwide.',
-    'PIXELA — Burak. Kurumsal web, özel yazılım ve dijital çözümler. Markanızı ekranda güçlü gösterir, aramalarda öne çıkarırım.',
+    'PIXELA — Burak. Site, panel ve özel yazılım. Markanı ekranda net gösterir, aramalarda görünür kılarım.',
   ],
   [
     'Empowering your business with next-generation interactive 3D and AI solutions.',
-    'İşletmeniz için sade, hızlı ve etkili yazılım ile web çözümleri.',
+    'Sade, hızlı ve akılda kalan web ile yazılım çözümleri.',
   ],
   [`${BRAND} Development Studio`, `${BRAND} — Yazılım & Web`],
 
@@ -62,8 +62,8 @@ const BASE_PAIRS = [
   ['Skip to content', 'İçeriğe geç'],
   ['Selected Work', 'Projelerim'],
   ['About Us', 'Hakkımda'],
-  ['Book a Call Today', 'Projenizi Konuşalım'],
-  ['Book a call', 'WhatsApp’tan Yazın'],
+  ['Book a Call Today', SITE_COPY.ctaHeadline || 'Hadi Konuşalım'],
+  ['Book a call', SITE_COPY.ctaButton || 'WhatsApp’tan Yaz'],
   ['General Enquiries', 'Genel Sorular'],
   ['Visit us', 'Adres'],
   ['New business', 'Yeni projeler'],
@@ -118,18 +118,26 @@ const BASE_PAIRS = [
   // —— Hero ——
   [
     '# A Creative Development Studio, Plugged into the Future\n\nScroll to Inspect Our Closed Deals\n',
-    '# Yazılımla Markanı Öne Çıkar\n\nSeçili Projelere Göz Atmak İçin Kaydır\n',
+    `# ${SITE_COPY.heroTitle || 'Markanı Ekranda Hissettir'}\n\n${SITE_COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor'}\n`,
   ],
   [
     'A Creative Development Studio, Plugged into the Future',
-    'Yazılımla Markanı Öne Çıkar',
+    SITE_COPY.heroTitle || 'Markanı Ekranda Hissettir',
   ],
-  ['Scroll to Inspect Our Closed Deals', 'Seçili projelere göz atmak için kaydır'],
+  [
+    'Scroll to Inspect Our Closed Deals',
+    SITE_COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor',
+  ],
+  // Eski TR → yeni (önbellek / DOM)
+  ['Yazılımla Markanı Öne Çıkar', SITE_COPY.heroTitle || 'Markanı Ekranda Hissettir'],
+  ['Markanı Ekranda Canlandır', SITE_COPY.heroTitle || 'Markanı Ekranda Hissettir'],
+  ['Seçili projelere göz atmak için kaydır', SITE_COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor'],
+  ['Seçili işlere kaydır — her biri canlı bir vitrin', SITE_COPY.heroSubtitle || 'Kaydır — seçili işler seni bekliyor'],
 
   // —— Projeler ——
   [
     'Browse our project carousel to explore our selected work.',
-    'Tamamladığım yazılım ve web işlerini keşfetmek için kaydır.',
+    'Seçili işleri gez — her biri canlı bir vitrin.',
   ],
   ['Project carousel', 'Proje karuseli'],
   ['Previous project', 'Önceki proje'],
@@ -165,99 +173,104 @@ const BASE_PAIRS = [
   // —— Hakkımda ——
   [
     '# Making Digital Storytelling More Playful, Powerful, and Alive\n\nShader is a creative development studio specialized in building interactive 3D and AI solutions for the web. Serious about business, based in Sweden, and working with brands, agencies and designers worldwide.\n\nPlugged into the future. While we\'re a small team of creative engineers, we have a hand-picked network of collaborators: designers, 3D artists, copywriters, animators, and creative technologists, ready to plug in with an array of capabilities.\n\nThis modular approach means we can scale and adapt to each challenge. Whether it\'s a WebGL experiment, an interactive product visualization, a mobile app, or an AI-driven experience, we help bold brands stand out across every screen.\n\nWe build storytelling platforms that demand attention and reward curiosity. We push digital mediums to places you haven\'t seen before, and have fun doing it. Beyond code, we offer 3D design and animation, UI and motion design, concepts and digital strategy, full-stack development, and creative consulting.\n\nWhether it\'s prototyping an idea, launching an augmented reality experience, or bringing high-fidelity visuals to life, Shader bridges the gap between creative ambition and technical execution. Our process is hands-on, collaborative, and tailored for teams that value both craft and innovation. We combine technical expertise with a designer\'s eye, ensuring that every interaction feels natural and every pixel is perfectly placed. We\'re not your regular IT department. We don\'t troubleshoot printers.\n',
-    '# Merhaba, ben Burak\n\nPIXELA ile işletmelere kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum. Her işte hedefim aynı: markanızı dijitalde net, hızlı ve güvenilir göstermek.\n\nKurumsal vitrin, e-ticaret, randevu veya sipariş sistemi, CRM ya da size özel panel — ihtiyaca göre uçtan uca kuruyorum. Tasarımdan yayına kadar süreç şeffaf ilerler; sürpriz yok, net adımlar var.\n\nSiteler mobil uyumlu, hızlı ve SEO temelli hazırlanır. Amaç, Google’da görünürlüğünüzü artırmak ve müşterinin size kolay ulaşmasını sağlamak.\n\nAşağıda farklı sektörlerden seçili işlerimi görebilirsiniz. Her biri, bir işletmeyi ekranda daha güçlü kılmak için yapıldı.\n\nYeni bir proje düşünüyorsanız yazın; birlikte ihtiyacı netleştirip size özel bir yol haritası çıkaralım.\n',
+    `# ${SITE_COPY.aboutTitle || 'Merhaba, ben Burak'}\n\n${SITE_COPY.aboutBody || 'PIXELA ile işletmelere site, panel ve özel yazılım kuruyorum.'}\n\nKurumsal vitrin, e-ticaret, randevu veya sipariş sistemi, CRM ya da size özel panel — ihtiyaca göre uçtan uca kuruyorum. Tasarımdan yayına kadar süreç açık ilerler; sürpriz yok, net adımlar var.\n\nHer site mobil uyumlu, hızlı ve SEO temelli. Amaç basit: Google’da görünmek, müşterinin sana kolay ulaşması.\n\nAşağıda seçili işlerim var. Her biri bir işletmeyi ekranda daha güçlü kılmak için yapıldı.\n\nYeni bir şey düşünüyorsan yaz — birlikte ihtiyacı netleştirip yol haritasını çıkarırız.\n`,
   ],
   [
     'Making Digital Storytelling More Playful, Powerful, and Alive',
-    'Merhaba, ben Burak',
+    SITE_COPY.aboutTitle || 'Merhaba, ben Burak',
   ],
   [
     'Shader is a creative development studio specialized in building interactive 3D and AI solutions for the web. Serious about business, based in Sweden, and working with brands, agencies and designers worldwide.',
-    'PIXELA ile işletmelere kurumsal web siteleri, yönetim panelleri ve özel yazılım geliştiriyorum.',
+    SITE_COPY.aboutBody ||
+      'PIXELA ile işletmelere site, panel ve özel yazılım kuruyorum. Her işte tek hedef: ekranda güven veren bir dijital vitrin.',
   ],
   [
     "Plugged into the future. While we're a small team of creative engineers, we have a hand-picked network of collaborators: designers, 3D artists, copywriters, animators, and creative technologists, ready to plug in with an array of capabilities.",
-    'Kurumsal vitrin, e-ticaret, randevu sistemi veya özel panel — ihtiyaca göre uçtan uca kuruyorum.',
+    'Kurumsal vitrin, e-ticaret, randevu veya özel panel — ihtiyaca göre uçtan uca kuruyorum.',
   ],
   [
     "This modular approach means we can scale and adapt to each challenge. Whether it's a WebGL experiment, an interactive product visualization, a mobile app, or an AI-driven experience, we help bold brands stand out across every screen.",
-    'Her proje farklıdır; ortak hedef hep aynı: dijitalde net, hızlı ve profesyonel görünmek.',
+    'Her proje farklı; ortak payda aynı: dijitalde net, hızlı ve güven veren bir görünüm.',
   ],
   [
     "We build storytelling platforms that demand attention and reward curiosity. We push digital mediums to places you haven't seen before, and have fun doing it. Beyond code, we offer 3D design and animation, UI and motion design, concepts and digital strategy, full-stack development, and creative consulting.",
-    'Her site mobil uyumlu, hızlı ve SEO temelli hazırlanır — markanızı aramalarda üst sıralara taşımak için.',
+    'Mobil uyum, hız ve SEO her işte standart — markanı aramalarda görünür kılmak için.',
   ],
   [
     "Whether it's prototyping an idea, launching an augmented reality experience, or bringing high-fidelity visuals to life, Shader bridges the gap between creative ambition and technical execution. Our process is hands-on, collaborative, and tailored for teams that value both craft and innovation. We combine technical expertise with a designer's eye, ensuring that every interaction feels natural and every pixel is perfectly placed. We're not your regular IT department. We don't troubleshoot printers.",
-    'Sürecim net: dinle, planla, geliştir, yayına al. Yönetmesi kolay, işletmenin dijital vitrini olacak şekilde.',
+    'Süreç sade: dinle, planla, geliştir, yayına al. Yönetmesi kolay, işletmenin yüzü olacak şekilde.',
   ],
 
   // —— İkinci hakkımda bölümü ——
   [
     '# For Companies Serious About Technology\n\nIn today\'s fast-paced corporate landscape, you need a partner who understands the bottom line. At Shader, we engineer success through strategic alliances and mutual profitability. Our team is ready to synergize with your organization, unlock new verticals, and maximize your digital ROI. We don\'t just close deals; we deliver results that compound.\n\nWe leverage state-of-the-art technology to give your brand a decisive competitive advantage. Whether disrupting the market with paradigm-shifting 3D experiences or streamlining operations with cutting-edge AI, we provide turnkey solutions that scale. We merge high-performance engineering with executive-level design to build assets that appreciate your brand value.\n\nReady to take your enterprise to the next level? Don\'t waste valuable time. Review our portfolio, crunch the numbers, and you\'ll see the trajectory points one way: up. Pick up the phone, send a fax, or schedule a consultation. The future of your business is waiting. Let\'s execute.\n',
-    '# Dijitalde Büyümek İsteyenler İçin\n\nDoğru site ve yazılım, yeni müşteri kapısı açar. Markanız internette güven verir; hizmetleriniz net anlatılır.\n\nHız, mobil uyum ve SEO her işte standarttır. Vitrin sitesi, online sipariş veya randevu sistemi — iş modelinize uygun çözümü birlikte kurarız.\n\nReferanslara bakın; kaliteyi ve yaklaşımı orada görürsünüz. Hazırsanız tek bir mesaj yeter.\n',
+    '# Dijitalde Büyümek İsteyenler İçin\n\nDoğru site yeni kapılar açar. Markan internette güven verir; hizmetlerin net anlatılır.\n\nHız, mobil uyum ve SEO her işte varsayılan. Vitrin, sipariş veya randevu — iş modeline uygun çözümü birlikte kurarız.\n\nReferanslara bak; yaklaşımı orada görürsün. Hazırsan tek bir mesaj yeter.\n',
   ],
   [
     "In today's fast-paced corporate landscape, you need a partner who understands the bottom line. At Shader, we engineer success through strategic alliances and mutual profitability. Our team is ready to synergize with your organization, unlock new verticals, and maximize your digital ROI. We don't just close deals; we deliver results that compound.",
-    'Doğru site ve yazılım, yeni müşteri kapısı açar. Markanız güven verir; hizmetleriniz net anlatılır.',
+    'Doğru site yeni kapılar açar. Markan güven verir; hizmetlerin net anlatılır.',
   ],
   [
     "We leverage state-of-the-art technology to give your brand a decisive competitive advantage. Whether disrupting the market with paradigm-shifting 3D experiences or streamlining operations with cutting-edge AI, we provide turnkey solutions that scale. We merge high-performance engineering with executive-level design to build assets that appreciate your brand value.",
-    'Hız, mobil uyum ve SEO standarttır. Sipariş, randevu veya panel — işletmenize özel yazılım çözümleri.',
+    'Hız, mobil uyum ve SEO standarttır. Sipariş, randevu veya panel — işletmene özel yazılım.',
   ],
   [
     "Ready to take your enterprise to the next level? Don't waste valuable time. Review our portfolio, crunch the numbers, and you'll see the trajectory points one way: up. Pick up the phone, send a fax, or schedule a consultation. The future of your business is waiting. Let's execute.",
-    'Projelere göz atın. Yeni siteniz veya yazılımınız için hemen yazın — birlikte başlayalım.',
+    'İşlere göz at. Yeni siten veya yazılımın için yaz — birlikte başlayalım.',
   ],
 
   // —— 3D bölüm başlıkları (canvas metin) ——
   [
     "Still Not Convinced We're Serious About Business?",
-    'Hâlâ ikna olmadınız mı?',
+    'Hâlâ merakın mı var?',
   ],
   [
     "We've got one last trick up our sleeve.",
-    'Bir sürpriz daha var.',
+    'Bir sürpriz daha.',
   ],
   [
     "Had Enough Reading? Let's Shred This Thing.",
-    'Yeterince okuduk — projelere geçelim.',
+    'Yeterince okuduk — işlere geçelim.',
   ],
   [
     'A High Tech Business Solutions Company',
-    'Yazılım ve Kurumsal Web',
+    'Yazılım & Kurumsal Web',
   ],
-  ['Check Out This Golden Tie', 'Şu Altın Kravata Bir Bakın'],
+  ['Check Out This Golden Tie', 'Altın detaya bir bak'],
   [
     'You made it this far. You deserve a tie-break.',
-    'Buraya kadar geldiniz — kısa bir mola.',
+    'Buraya kadar geldin — kısa bir mola.',
   ],
   ['Good buy.', 'İyi alışverişler!'],
 
   // —— Referanslar ——
   [
     '# A Showcase of Valued Clients\n\nWe have had the benefit of working with a large pool of great clients throughout the years. Our partnerships ranges from some of the most recognizable Swedish brands to international innovators.\n',
-    '# Birlikte Çalıştığım Markalar\n\nFarklı sektörlerden işletmelerle çalıştım. Ortak nokta hep aynıydı: dijitalde daha güçlü görünmek ve öne çıkmak.\n',
+    `# ${SITE_COPY.clientsTitle || 'Birlikte İz Bıraktığımız Markalar'}\n\n${SITE_COPY.clientsBody || 'Farklı sektörler, aynı istek: dijitalde daha net görünmek.'}\n`,
   ],
   [
     'We have had the benefit of working with a large pool of great clients throughout the years. Our partnerships ranges from some of the most recognizable Swedish brands to international innovators.',
-    'Farklı sektörlerden işletmelerle çalıştım; her birinde dijitalde öne çıkmalarına yardımcı oldum.',
+    SITE_COPY.clientsBody ||
+      'Farklı sektörler, aynı istek: dijitalde daha net görünmek ve müşteriye kolay ulaşmak.',
   ],
+  ['A Showcase of Valued Clients', SITE_COPY.clientsTitle || 'Birlikte İz Bıraktığımız Markalar'],
+  ['Birlikte Çalıştığım Markalar', SITE_COPY.clientsTitle || 'Birlikte İz Bıraktığımız Markalar'],
 
   // —— İletişim ——
   [
     '# Contact\n\nContact us about your digital project idea or general enquires. Let\'s interface, call us today!\n',
-    '# İletişim\n\nYeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.\n',
+    `# ${SITE_COPY.contactTitle || 'İletişim'}\n\n${SITE_COPY.contactBody || 'Yeni bir site veya yazılım aklındaysa yaz.'}\n`,
   ],
   [
     "Contact us about your digital project idea or general enquires. Let's interface, call us today!",
-    'Yeni bir site veya yazılım fikriniz varsa yazın. Kısa bir görüşmeyle ihtiyacı netleştirip yol haritasını birlikte çıkaralım.',
+    SITE_COPY.contactBody ||
+      'Yeni bir site veya yazılım aklındaysa yaz. Kısa bir sohbetle ihtiyacı netleştirip yolu birlikte çizeriz.',
   ],
   [
     '# Act now! Book a Consultation.\n\nCut along the dotted line and mail this to the post address below for a free 30 minute video call consultation.\n',
-    '# Haydi Başlayalım\n\nÜcretsiz ön görüşme için yazın — projenizi birlikte planlayalım.\n',
+    `# ${SITE_COPY.ctaHeadline || 'Hadi Konuşalım'}\n\nÜcretsiz ön görüşme için yaz — projeni birlikte planlarız.\n`,
   ],
-  ['# Had Enough Reading? Let\'s Shred This Thing.\n', '# Yeterince okuduk — projelere geçelim.\n'],
+  ['# Had Enough Reading? Let\'s Shred This Thing.\n', '# Yeterince okuduk — işlere geçelim.\n'],
 
   // —— Erişilebilirlik ——
   [
@@ -788,8 +801,8 @@ function getChunkPatchJs() {
       "var GR=/\\/models\\/(shredder|computer)\\.glb/i;" +
       "function rw(u){if(!u)return u;u=String(u);if(/cal\\.com/i.test(u))return WP;" +
       "if(/shader\\.se/i.test(u)){try{var x=new URL(u,location.origin);return x.pathname+x.search;}catch(e){return'/';}}" +
-      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=173';" +
-      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=173';" +
+      "if(/\\/textures\\/boot_screen_mobile\\.png/i.test(u))return'/pixela-boot-screen-mobile.png?v=176';" +
+      "if(/\\/textures\\/boot_screen\\.png/i.test(u))return'/pixela-boot-screen.png?v=176';" +
       "if(GR.test(u))return u.replace(/^https?:\\/\\/[^/]+/i,'').split('?')[0]+'?_='+Date.now();return u;}" +
       "function hi(){if(window.__pixelaImg)return;window.__pixelaImg=1;var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;var os=d.set;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get:d.get,set:function(v){return os.call(this,rw(String(v)))}});var oa=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(n,v){if(String(n).toLowerCase()==='src')return oa.call(this,n,rw(String(v)));return oa.apply(this,arguments)};}" +
       'hi();' +

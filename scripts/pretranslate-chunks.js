@@ -4,7 +4,7 @@ const path = require('path');
 const { applyTranslations } = require('../translations-tr');
 
 const ROOT = path.join(__dirname, '..');
-const SCRIPT_VER = '174';
+const SCRIPT_VER = '179';
 const SRC = path.join(ROOT, 'static', '_next', 'static', 'chunks');
 const DEST = path.join(ROOT, 'cache', `chunks-tr-v${SCRIPT_VER}`);
 
@@ -43,9 +43,9 @@ if (fs.existsSync(nav)) {
 
   // Bilgisayar reel isiklari — onceki seviye; video sync sikilasmis kalsin
   const lightPatches = [
-    ['.div(4.5).mul(p).mul(.1)', '.div(4.5).mul(p).mul(.55)'],
-    ['xr(t.reelLightTexture,f).rgb.mul(.5)', 'xr(t.reelLightTexture,f).rgb.mul(1.0)'],
-    ['t.emissiveNode=xr(n["commodore-logo"].map).mul(.4)', 't.emissiveNode=xr(n["commodore-logo"].map).mul(1.15)'],
+    ['.div(4.5).mul(p).mul(.1)', '.div(4.5).mul(p).mul(.7)'],
+    ['xr(t.reelLightTexture,f).rgb.mul(.5)', 'xr(t.reelLightTexture,f).rgb.mul(1.15)'],
+    ['t.emissiveNode=xr(n["commodore-logo"].map).mul(.4)', 't.emissiveNode=xr(n["commodore-logo"].map).mul(1.35)'],
     ['Math.abs(e.currentTime-t.currentTime)>.15', 'Math.abs(e.currentTime-t.currentTime)>.04'],
   ];
   for (const [a, b] of lightPatches) {
